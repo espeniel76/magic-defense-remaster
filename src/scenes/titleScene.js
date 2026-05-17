@@ -24,14 +24,6 @@ export class TitleScene extends Phaser.Scene {
       color: '#ffffff',
     }).setOrigin(0.5);
 
-    const codexBtn = this.add.rectangle(w / 2, h * 0.40, 260, 60, 0x444c5a).setInteractive();
-    this.add.text(w / 2, h * 0.40, '몬스터 도감', {
-      fontFamily: GAME_CONFIG.font.family,
-      fontSize: '26px',
-      color: '#ffffff',
-    }).setOrigin(0.5);
-    codexBtn.on('pointerup', () => this.scene.start('MonsterCodexScene'));
-
     const buttons = [
       { y: 0.50, label: '보통 모드',  color: 0x3d6dba, mode: 'normal' },
       { y: 0.65, label: '어려움 모드', color: 0xC0392B, mode: 'hard'   },
