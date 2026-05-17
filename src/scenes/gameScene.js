@@ -102,7 +102,8 @@ export class GameScene extends Phaser.Scene {
     this.actionBar.onSummon = () => this.handleSummon();
     this.speedMultiplier = 1;
     this.actionBar.onSpeedToggle = () => {
-      this.speedMultiplier = this.speedMultiplier === 1 ? 2 : 1;
+      const next = { 1: 2, 2: 4, 4: 1 };
+      this.speedMultiplier = next[this.speedMultiplier] ?? 1;
       this.actionBar.setSpeed(this.speedMultiplier);
     };
 
