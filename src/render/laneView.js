@@ -29,43 +29,78 @@ export class LaneView {
 
   _buildEnemySprite(enemy) {
     const color = hexToInt(enemy.config.color ?? '#888888');
-    const r = 24; // body radius (was 16)
+    const r = 30; // body radius (was 24)
+    const isLateWave = enemy.wave >= 16;
 
     const container = this.scene.add.container(0, 0);
 
-    // Horns drawn with Graphics — precise absolute coords
     const horns = this.scene.add.graphics();
     horns.fillStyle(color, 1);
-    // Left horn
-    horns.beginPath();
-    horns.moveTo(-r * 0.45, -r * 1.4);   // tip
-    horns.lineTo(-r * 0.75, -r * 0.6);   // bottom-left
-    horns.lineTo(-r * 0.15, -r * 0.6);   // bottom-right
-    horns.closePath();
-    horns.fillPath();
-    // Right horn
-    horns.beginPath();
-    horns.moveTo(r * 0.45, -r * 1.4);    // tip
-    horns.lineTo(r * 0.15, -r * 0.6);    // bottom-left
-    horns.lineTo(r * 0.75, -r * 0.6);    // bottom-right
-    horns.closePath();
-    horns.fillPath();
+
+    if (isLateWave) {
+      // Flame-like horns (curved teardrop). Two flames, one per side.
+      // Left flame
+      horns.beginPath();
+      horns.moveTo(-r * 0.55, -r * 0.55);
+      horns.bezierCurveTo(
+        -r * 0.95, -r * 1.0,
+        -r * 0.6, -r * 1.6,
+        -r * 0.2, -r * 1.9
+      );
+      horns.bezierCurveTo(
+        -r * 0.05, -r * 1.5,
+        -r * 0.2, -r * 1.0,
+        -r * 0.15, -r * 0.55
+      );
+      horns.closePath();
+      horns.fillPath();
+      // Right flame (mirror)
+      horns.beginPath();
+      horns.moveTo(r * 0.55, -r * 0.55);
+      horns.bezierCurveTo(
+        r * 0.95, -r * 1.0,
+        r * 0.6, -r * 1.6,
+        r * 0.2, -r * 1.9
+      );
+      horns.bezierCurveTo(
+        r * 0.05, -r * 1.5,
+        r * 0.2, -r * 1.0,
+        r * 0.15, -r * 0.55
+      );
+      horns.closePath();
+      horns.fillPath();
+    } else {
+      // Standard pointed horns (straight triangles)
+      // Left horn
+      horns.beginPath();
+      horns.moveTo(-r * 0.45, -r * 1.4);
+      horns.lineTo(-r * 0.75, -r * 0.6);
+      horns.lineTo(-r * 0.15, -r * 0.6);
+      horns.closePath();
+      horns.fillPath();
+      // Right horn
+      horns.beginPath();
+      horns.moveTo(r * 0.45, -r * 1.4);
+      horns.lineTo(r * 0.15, -r * 0.6);
+      horns.lineTo(r * 0.75, -r * 0.6);
+      horns.closePath();
+      horns.fillPath();
+    }
 
     // Body
     const body = this.scene.add.circle(0, 0, r, color);
     body.setStrokeStyle(2, 0x000000);
 
-    // Eyes
-    const eyeR = r * 0.22;
-    const eyeY = r * 0.1;
-    const eyeOffsetX = r * 0.4;
+    // Eyes — bigger (was 0.22, now 0.30)
+    const eyeR = r * 0.30;
+    const eyeY = r * 0.05;
+    const eyeOffsetX = r * 0.40;
     const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeR, 0xffffff);
     const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeR, 0xffffff);
 
     container.add([horns, body, eyeL, eyeRight]);
 
-    // Enemies in late waves are larger and more menacing
-    if (enemy.wave >= 16) {
+    if (isLateWave) {
       container.setScale(1.4);
     }
     return container;

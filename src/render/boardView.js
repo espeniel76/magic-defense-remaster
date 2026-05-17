@@ -7,6 +7,21 @@ function hexToInt(hex) {
   return parseInt(hex.replace('#', ''), 16);
 }
 
+function drawFilledStar(g, cx, cy, outerR, innerR, color) {
+  g.fillStyle(color, 1);
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const angle = (i * Math.PI) / 5 - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    if (i === 0) g.moveTo(x, y);
+    else g.lineTo(x, y);
+  }
+  g.closePath();
+  g.fillPath();
+}
+
 export class BoardView {
   constructor(scene, x, y, width, height, board) {
     this.scene = scene;
@@ -50,38 +65,56 @@ export class BoardView {
     const bodyColor = hexToInt(mage.config.color);
     const hatColor = hexToInt(mage.config.hatColor ?? mage.config.color);
     const size = this.cellSize * 0.4;
+    const level = mage.level;
 
     const container = this.scene.add.container(cell.x, cell.y);
 
-    // Body circle (slightly below container center to leave room for hat)
+    // Body circle
     const body = this.scene.add.circle(0, size * 0.15, size, bodyColor);
     body.setStrokeStyle(2, 0xffffff);
 
-    // Hat drawn with Graphics (no auto-centering)
-    const hat = this.scene.add.graphics();
-    hat.fillStyle(hatColor, 1);
-    hat.beginPath();
-    hat.moveTo(0, -size * 1.5);              // top point
-    hat.lineTo(-size * 0.6, -size * 0.7);    // bottom-left
-    hat.lineTo(size * 0.6, -size * 0.7);     // bottom-right
-    hat.closePath();
-    hat.fillPath();
+    // Hat: drawn only for L1-L3, with progressive star decorations.
+    if (level <= 3) {
+      const hat = this.scene.add.graphics();
+      hat.fillStyle(hatColor, 1);
+      hat.beginPath();
+      hat.moveTo(0, -size * 1.5);
+      hat.lineTo(-size * 0.6, -size * 0.7);
+      hat.lineTo(size * 0.6, -size * 0.7);
+      hat.closePath();
+      hat.fillPath();
 
-    // Eyes
-    const eyeRadius = size * 0.18;
+      // Stars: L2 has 1 star near tip; L3 has 2 stars (one near tip, one mid-hat).
+      const starCount = level - 1; // L1=0, L2=1, L3=2
+      const starPositions = [
+        { x: 0, y: -size * 1.15, r: size * 0.10 }, // upper star
+        { x: 0, y: -size * 0.85, r: size * 0.08 }, // lower star
+      ];
+      for (let i = 0; i < starCount; i++) {
+        const p = starPositions[i];
+        drawFilledStar(hat, p.x, p.y, p.r, p.r * 0.45, 0xffffff);
+      }
+
+      container.add(hat);
+    }
+
+    // Body added AFTER hat so eyes overlay on body
+    container.add(body);
+
+    // Eyes (bigger — was 0.18, now 0.24)
+    const eyeRadius = size * 0.24;
     const eyeY = size * 0.05;
-    const eyeOffsetX = size * 0.35;
+    const eyeOffsetX = size * 0.36;
     const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeRadius, 0xffffff);
     const eyeR = this.scene.add.circle(eyeOffsetX, eyeY, eyeRadius, 0xffffff);
+    container.add([eyeL, eyeR]);
 
-    container.add([hat, body, eyeL, eyeR]);
-
-    // Visual scale grows with level: L1 = 1.0, L2 = 1.1, L3 = 1.22, L4+ = 1.35
+    // Visual scale by level
     const scaleMap = { 1: 1.0, 2: 1.1, 3: 1.22, 4: 1.35, 5: 1.45 };
-    const scale = scaleMap[mage.level] ?? 1.0;
+    const scale = scaleMap[level] ?? 1.0;
     container.setScale(scale);
 
-    // Make container draggable
+    // Draggable hit area (un-scaled coords; setSize is independent of scale)
     const hitW = size * 2.2;
     const hitH = size * 2.8;
     container.setSize(hitW, hitH);
@@ -95,6 +128,7 @@ export class BoardView {
 
     cell.container = container;
 
+    // Level badge
     cell.levelText = this.scene.add.text(
       cell.x + this.cellSize / 2 - 4,
       cell.y + this.cellSize / 2 - 4,
