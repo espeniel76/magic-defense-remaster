@@ -53,4 +53,10 @@ describe('Enemy', () => {
     e.update(501);
     expect(e.getCurrentSpeed()).toBeGreaterThan(0);
   });
+
+  it('applies optional hpMultiplier to base HP', () => {
+    const normal = new Enemy('GOBLIN', 1, 0);
+    const tougher = new Enemy('GOBLIN', 1, 0, 1.5);
+    expect(tougher.hp).toBeCloseTo(normal.hp * 1.5);
+  });
 });

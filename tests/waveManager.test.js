@@ -122,4 +122,19 @@ describe('WaveManager', () => {
     expect(total).toBe(30); // 10 + (11-1)*2
     expect(bossCount).toBe(0);
   });
+
+  it('hard mode occasionally spawns ELITE enemies', () => {
+    const wm = new WaveManager(true);
+    wm.start();
+    const types = new Set();
+    for (let i = 0; i < 200; i++) {
+      const r = wm.update(2000);
+      for (const s of r.spawns) types.add(s.typeId);
+      if (wm.isInIntermission()) {
+        wm.notifyEnemiesCleared();
+        wm.update(5001);
+      }
+    }
+    expect(types.has('ELITE')).toBe(true);
+  });
 });

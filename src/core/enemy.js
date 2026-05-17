@@ -1,19 +1,19 @@
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
 export class Enemy {
-  constructor(typeId, wave, lane) {
+  constructor(typeId, wave, lane, hpMultiplier = 1) {
     const config = GAME_CONFIG.enemies[typeId];
     if (!config) {
       throw new Error(`Unknown enemy type: ${typeId}`);
     }
     this.typeId = typeId;
-    this.wave = wave;
     this.lane = lane;
+    this.wave = wave;
     this.config = config;
     const hpScale = Math.pow(GAME_CONFIG.wave.hpScalePerWave, wave - 1);
-    this.hp = config.hp * hpScale;
+    this.hp = config.hp * hpScale * hpMultiplier;
     this.maxHp = this.hp;
-    this.position = 0; // 0..1 along lane
+    this.position = 0;
     this.slowFactor = 1;
     this.slowUntil = 0;
     this.stunUntil = 0;

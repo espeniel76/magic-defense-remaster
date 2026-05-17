@@ -35,6 +35,7 @@ export const GAME_CONFIG = {
     GOBLIN:   { id: 'GOBLIN',   emoji: '👹', color: '#E74C3C', hp: 20,  speed: 1.0, baseDamage: 1 },
     SKELETON: { id: 'SKELETON', emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
     BOSS:     { id: 'BOSS',     emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
+    ELITE:    { id: 'ELITE',    emoji: '⭐', color: '#F1C40F', hp: 40,  speed: 1.0, baseDamage: 2 },
   },
   wave: {
     baseCount: 10,
@@ -62,6 +63,17 @@ export const GAME_CONFIG = {
     { name: '바다', color: 0x29B6F6 },
     { name: '성',   color: 0x757575 },
   ],
+  zonesHard: [
+    { name: '신비의숲',   color: 0x7FE3B0 },
+    { name: '얼음설원',   color: 0xBFE6FF },
+    { name: '화산천지',   color: 0xFFD93D },
+    { name: '망각의 바다', color: 0x1A237E },
+    { name: '결전의 성',   color: 0x616161 },
+  ],
+  hardMode: {
+    enemyHpMultiplier: 1.5,
+    eliteSpawnRatio: 0.2,
+  },
   save: {
     storageKey: 'magicDefense.bestWave',
   },

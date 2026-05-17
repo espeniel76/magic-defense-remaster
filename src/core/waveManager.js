@@ -1,7 +1,8 @@
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
 export class WaveManager {
-  constructor() {
+  constructor(hardMode = false) {
+    this.hardMode = hardMode;
     this.currentWave = 0;
     this.spawnsLeft = 0;
     this.spawnedThisWave = 0;
@@ -82,6 +83,9 @@ export class WaveManager {
 
   pickType() {
     if (this.isBossWave(this.currentWave)) return 'BOSS';
+    if (this.hardMode && Math.random() < GAME_CONFIG.hardMode.eliteSpawnRatio) {
+      return 'ELITE';
+    }
     const ratio = this.computeSkeletonRatio(this.currentWave);
     return Math.random() < ratio ? 'SKELETON' : 'GOBLIN';
   }

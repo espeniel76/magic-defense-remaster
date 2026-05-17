@@ -17,6 +17,10 @@ export class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
+  init(data) {
+    this.mode = data?.mode ?? 'normal';
+  }
+
   create() {
     this.isGameOver = false;
     this.currentZoneIndex = 0;
@@ -34,12 +38,13 @@ export class GameScene extends Phaser.Scene {
     this.statusBar.setGold(GAME_CONFIG.player.startGold);
 
     // Lane area
+    const zoneInitial = this.zones[0];
     this.add.rectangle(0, STATUS_H, w, LANE_H, 0x3a2818).setOrigin(0);
     this.enemyLane = new EnemyLane();
     this.laneView = new LaneView(this, 0, STATUS_H, w, LANE_H, this.enemyLane);
+    this.laneView.setBackgroundColor(zoneInitial.color);
 
     // Zone name banner (over top of lane area)
-    const zoneInitial = GAME_CONFIG.zones[0];
     this.zoneText = this.add.text(w / 2, STATUS_H + 6, zoneInitial.name, {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '32px',
@@ -57,7 +62,9 @@ export class GameScene extends Phaser.Scene {
 
     this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
-    this.waveManager = new WaveManager();
+    this.zones = this.mode === 'hard' ? GAME_CONFIG.zonesHard : GAME_CONFIG.zones;
+    this.hpMultiplier = this.mode === 'hard' ? GAME_CONFIG.hardMode.enemyHpMultiplier : 1;
+    this.waveManager = new WaveManager(this.mode === 'hard');
     this.waveManager.start();
     this.hp = GAME_CONFIG.player.startHp;
     this.statusBar.setHp(this.hp);
@@ -144,7 +151,7 @@ export class GameScene extends Phaser.Scene {
     // Wave: spawn enemies
     const wave = this.waveManager.update(effectiveDt);
     for (const spawn of wave.spawns) {
-      this.enemyLane.spawn(new Enemy(spawn.typeId, spawn.wave, spawn.lane));
+      this.enemyLane.spawn(new Enemy(spawn.typeId, spawn.wave, spawn.lane, this.hpMultiplier));
     }
     if (wave.waveStarted) {
       this.statusBar.setWave(this.waveManager.getCurrentWave());
@@ -206,12 +213,23 @@ export class GameScene extends Phaser.Scene {
   }
 
   _advanceZone() {
-    const lastIndex = GAME_CONFIG.zones.length - 1;
-    if (this.currentZoneIndex >= lastIndex) return;
+    if (this.currentZoneIndex >= this.zones.length - 1) {
+      this._triggerVictory();
+      return;
+    }
     this.currentZoneIndex += 1;
-    const zone = GAME_CONFIG.zones[this.currentZoneIndex];
+    const zone = this.zones[this.currentZoneIndex];
     this.laneView.setBackgroundColor(zone.color);
     this.zoneText.setText(zone.name);
+  }
+
+  _triggerVictory() {
+    this.isGameOver = true;
+    this.scene.start('GameOverScene', {
+      wave: this.waveManager.getCurrentWave(),
+      isVictory: true,
+      mode: this.mode,
+    });
   }
 
   triggerGameOver() {
