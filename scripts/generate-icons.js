@@ -1,0 +1,26 @@
+import sharp from 'sharp';
+import { writeFileSync } from 'fs';
+
+const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0f1419"/>
+  <!-- Wizard hat (triangle) -->
+  <polygon points="256,80 160,260 352,260" fill="#3d6dba"/>
+  <!-- Star on hat -->
+  <polygon points="256,140 270,180 312,180 278,205 290,245 256,222 222,245 234,205 200,180 242,180"
+           fill="#ffd700"/>
+  <!-- Wizard body (circle) -->
+  <circle cx="256" cy="350" r="100" fill="#6DCE53" stroke="#ffffff" stroke-width="6"/>
+  <!-- Eyes -->
+  <circle cx="220" cy="340" r="20" fill="#ffffff"/>
+  <circle cx="292" cy="340" r="20" fill="#ffffff"/>
+</svg>`;
+
+const svgBuffer = Buffer.from(svg);
+
+await sharp(svgBuffer).resize(192, 192).png().toFile('public/pwa-192.png');
+await sharp(svgBuffer).resize(512, 512).png().toFile('public/pwa-512.png');
+await sharp(svgBuffer).resize(180, 180).png().toFile('public/apple-touch-icon.png');
+writeFileSync('public/favicon.svg', svg);
+
+console.log('Icons generated');

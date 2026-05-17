@@ -91,6 +91,6 @@ export const GAME_CONFIG = {
     storageKey: 'magicDefense.bestWave',
   },
   font: {
-    family: '"Noto Sans KR", system-ui, sans-serif',
+    family: 'system-ui, -apple-system, "Noto Sans CJK KR", "Malgun Gothic", sans-serif',
   },
 };
