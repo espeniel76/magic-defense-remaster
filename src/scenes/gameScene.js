@@ -58,8 +58,10 @@ export class GameScene extends Phaser.Scene {
     this.actionBar.setSummonCost(this.economy.getSummonCost());
 
     this.actionBar.onSummon = () => this.handleSummon();
+    this.speedMultiplier = 1;
     this.actionBar.onSpeedToggle = () => {
-      console.log('[speed toggle]');
+      this.speedMultiplier = this.speedMultiplier === 1 ? 2 : 1;
+      this.actionBar.setSpeed(this.speedMultiplier);
     };
 
     this.input.on('drag', (_pointer, obj, x, y) => {
@@ -110,10 +112,11 @@ export class GameScene extends Phaser.Scene {
 
   update(_time, dtMs) {
     if (this.isGameOver) return;
-    this.economy.update(dtMs);
+    const effectiveDt = dtMs * this.speedMultiplier;
+    this.economy.update(effectiveDt);
 
     // Wave: spawn enemies
-    const wave = this.waveManager.update(dtMs);
+    const wave = this.waveManager.update(effectiveDt);
     for (const spawn of wave.spawns) {
       this.enemyLane.spawn(new Enemy(spawn.typeId, spawn.wave, spawn.lane));
     }
@@ -122,13 +125,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Mage attacks
-    const attacks = this.attackResolver.update(dtMs);
+    const attacks = this.attackResolver.update(effectiveDt);
     for (const atk of attacks) {
       this._renderAttackFx(atk);
     }
 
     // Enemy movement and base reach
-    const laneResult = this.enemyLane.update(dtMs);
+    const laneResult = this.enemyLane.update(effectiveDt);
     for (const reached of laneResult.reached) {
       this.hp -= reached.config.baseDamage;
       this.statusBar.setHp(Math.max(0, this.hp));
