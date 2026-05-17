@@ -26,7 +26,7 @@ export class TitleScene extends Phaser.Scene {
 
     // 시작 button — Normal mode
     const startBtn = this.add.rectangle(w / 2, h * 0.6, 360, 100, 0x3d6dba).setInteractive();
-    this.add.text(w / 2, h * 0.6, '시작', {
+    this.add.text(w / 2, h * 0.6, '보통 모드', {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '40px',
       color: '#ffffff',
@@ -38,7 +38,7 @@ export class TitleScene extends Phaser.Scene {
 
     // 어려움 button — Hard mode
     const hardBtn = this.add.rectangle(w / 2, h * 0.75, 360, 100, 0xC0392B).setInteractive();
-    this.add.text(w / 2, h * 0.75, '어려움', {
+    this.add.text(w / 2, h * 0.75, '어려움 모드', {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '40px',
       color: '#ffffff',
