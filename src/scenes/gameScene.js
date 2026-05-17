@@ -19,6 +19,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     this.isGameOver = false;
+    this.currentZoneIndex = 0;
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -36,6 +37,17 @@ export class GameScene extends Phaser.Scene {
     this.add.rectangle(0, STATUS_H, w, LANE_H, 0x3a2818).setOrigin(0);
     this.enemyLane = new EnemyLane();
     this.laneView = new LaneView(this, 0, STATUS_H, w, LANE_H, this.enemyLane);
+
+    // Zone name banner (over top of lane area)
+    const zoneInitial = GAME_CONFIG.zones[0];
+    this.zoneText = this.add.text(w / 2, STATUS_H + 6, zoneInitial.name, {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: '32px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5, 0);
 
     // Board area
     this.add.rectangle(0, STATUS_H + LANE_H, w, BOARD_H, 0x1a2540).setOrigin(0);
@@ -154,8 +166,11 @@ export class GameScene extends Phaser.Scene {
         return;
       }
     }
-    for (const _killed of laneResult.killed) {
+    for (const killed of laneResult.killed) {
       this.economy.rewardKill();
+      if (killed.typeId === 'BOSS') {
+        this._advanceZone();
+      }
     }
 
     // Notify wave manager when no enemies remain (for intermission)
@@ -188,6 +203,15 @@ export class GameScene extends Phaser.Scene {
       const l2 = this.add.line(0, 0, toWorld.x, toWorld.y, sw.x, sw.y, color, 0.7).setOrigin(0,0).setLineWidth(2);
       this.tweens.add({ targets: l2, alpha: 0, duration: 200, onComplete: () => l2.destroy() });
     }
+  }
+
+  _advanceZone() {
+    const lastIndex = GAME_CONFIG.zones.length - 1;
+    if (this.currentZoneIndex >= lastIndex) return;
+    this.currentZoneIndex += 1;
+    const zone = GAME_CONFIG.zones[this.currentZoneIndex];
+    this.laneView.setBackgroundColor(zone.color);
+    this.zoneText.setText(zone.name);
   }
 
   triggerGameOver() {

@@ -12,12 +12,26 @@ export class LaneView {
     this.area = { x, y, width, height };
     this.laneCount = lane.laneCount;
     this.laneWidth = width / this.laneCount;
-    this.enemySprites = new Map(); // enemy -> Phaser.Container
+    this.enemySprites = new Map();
+    this.laneBackgrounds = [];
 
+    const initialColor = GAME_CONFIG.zones[0].color;
     for (let i = 0; i < this.laneCount; i++) {
       const lx = x + i * this.laneWidth;
-      scene.add.rectangle(lx + this.laneWidth / 2, y + height / 2, this.laneWidth - 4, height, 0x4a2e1a)
-        .setStrokeStyle(2, 0x6a4828);
+      const rect = scene.add.rectangle(
+        lx + this.laneWidth / 2,
+        y + height / 2,
+        this.laneWidth - 4,
+        height,
+        initialColor,
+      ).setStrokeStyle(2, 0x000000);
+      this.laneBackgrounds.push(rect);
+    }
+  }
+
+  setBackgroundColor(color) {
+    for (const rect of this.laneBackgrounds) {
+      rect.fillColor = color;
     }
   }
 

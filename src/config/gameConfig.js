@@ -55,6 +55,13 @@ export const GAME_CONFIG = {
     enemyMoveDistancePerSecond: 120,
     laneLengthPixels: 480,
   },
+  zones: [
+    { name: '초원', color: 0x4CAF50 },
+    { name: '설원', color: 0xECEFF1 },
+    { name: '화산', color: 0xC62828 },
+    { name: '바다', color: 0x29B6F6 },
+    { name: '성',   color: 0x757575 },
+  ],
   save: {
     storageKey: 'magicDefense.bestWave',
   },
