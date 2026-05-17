@@ -38,7 +38,7 @@ export class TitleScene extends Phaser.Scene {
         color: '#ffffff',
       }).setOrigin(0.5);
       btn.on('pointerup', () => {
-        bgm.start(mode === 'hell' ? 'hell' : 'default');
+        bgm.start(mode);
         this.scene.start('GameScene', { mode });
       });
     }
