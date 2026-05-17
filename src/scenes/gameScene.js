@@ -48,6 +48,36 @@ export class GameScene extends Phaser.Scene {
     this.actionBar.onSpeedToggle = () => {
       console.log('[speed toggle]');
     };
+
+    this.input.on('drag', (_pointer, obj, x, y) => {
+      obj.x = x;
+      obj.y = y;
+    });
+
+    this.input.on('dragend', (_pointer, obj) => {
+      const fromCol = obj.getData('col');
+      const fromRow = obj.getData('row');
+      const target = this.boardView.getCellAt(obj.x, obj.y);
+      if (!target) {
+        this.boardView.refreshAll();
+        return;
+      }
+      if (target.col === fromCol && target.row === fromRow) {
+        this.boardView.refreshAll();
+        return;
+      }
+      const targetMage = this.board.getMageAt(target.col, target.row);
+      if (targetMage === null) {
+        this.board.moveMage(fromCol, fromRow, target.col, target.row);
+      } else {
+        const merge = this.board.tryMerge(fromCol, fromRow, target.col, target.row);
+        if (!merge.ok) {
+          // refresh will snap back
+        }
+      }
+      this.boardView.refreshAll();
+      this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
+    });
   }
 
   handleSummon() {

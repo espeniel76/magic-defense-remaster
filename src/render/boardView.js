@@ -36,18 +36,17 @@ export class BoardView {
   _refreshCell(c, r) {
     const cell = this.cells[c][r];
     const mage = this.board.getMageAt(c, r);
-    if (cell.mageText) {
-      cell.mageText.destroy();
-      cell.mageText = null;
-    }
-    if (cell.levelText) {
-      cell.levelText.destroy();
-      cell.levelText = null;
-    }
+    if (cell.mageText) { cell.mageText.destroy(); cell.mageText = null; }
+    if (cell.levelText) { cell.levelText.destroy(); cell.levelText = null; }
     if (!mage) return;
-    cell.mageText = this.scene.add.text(cell.x, cell.y, mage.config.emoji, {
+    const text = this.scene.add.text(cell.x, cell.y, mage.config.emoji, {
       fontSize: `${Math.floor(this.cellSize * 0.6)}px`,
     }).setOrigin(0.5);
+    text.setInteractive({ draggable: true });
+    text.setData('col', c);
+    text.setData('row', r);
+    this.scene.input.setDraggable(text);
+    cell.mageText = text;
     cell.levelText = this.scene.add.text(cell.x + this.cellSize / 2 - 4, cell.y + this.cellSize / 2 - 4, `L${mage.level}`, {
       fontSize: `${Math.floor(this.cellSize * 0.22)}px`,
       color: '#ffffff',
