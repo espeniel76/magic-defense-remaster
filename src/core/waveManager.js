@@ -23,7 +23,8 @@ export class WaveManager {
   startNextWave() {
     this.currentWave += 1;
     const cfg = GAME_CONFIG.wave;
-    if (this.isBossWave(this.currentWave)) {
+    const isBoss = this.isBossWave(this.currentWave);
+    if (isBoss) {
       this.spawnsLeft = 1; // single boss for boss waves
     } else {
       this.spawnsLeft = cfg.baseCount + (this.currentWave - 1) * cfg.countIncrement;

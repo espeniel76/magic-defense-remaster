@@ -174,6 +174,7 @@ export class GameScene extends Phaser.Scene {
     // Wave: spawn enemies
     const wave = this.waveManager.update(effectiveDt);
     for (const spawn of wave.spawns) {
+      if (spawn.typeId === 'BOSS') this._showBossBanner();
       this.enemyLane.spawn(new Enemy(spawn.typeId, spawn.wave, spawn.lane, this.hpMultiplier));
     }
     if (wave.waveStarted) {
@@ -233,6 +234,27 @@ export class GameScene extends Phaser.Scene {
       const l2 = this.add.line(0, 0, toWorld.x, toWorld.y, sw.x, sw.y, color, 0.7).setOrigin(0,0).setLineWidth(2);
       this.tweens.add({ targets: l2, alpha: 0, duration: 200, onComplete: () => l2.destroy() });
     }
+  }
+
+  _showBossBanner() {
+    const w = this.scale.width;
+    const h = this.scale.height;
+    const text = this.add.text(w / 2, h * 0.35, '⚠ BOSS WAVE ⚠', {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: '64px',
+      fontStyle: 'bold',
+      color: '#ff3344',
+      stroke: '#000000',
+      strokeThickness: 6,
+    }).setOrigin(0.5).setDepth(1000).setAlpha(0);
+    this.tweens.add({
+      targets: text,
+      alpha: 1,
+      duration: 200,
+      yoyo: true,
+      hold: 1500,
+      onComplete: () => text.destroy(),
+    });
   }
 
   _advanceZone() {

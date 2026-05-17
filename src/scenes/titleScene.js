@@ -31,7 +31,8 @@ export class TitleScene extends Phaser.Scene {
     ];
 
     for (const { y, label, color, mode } of buttons) {
-      const btn = this.add.rectangle(w / 2, h * y, 360, 100, color).setInteractive();
+      const btn = this.add.rectangle(w / 2, h * y, 360, 100, color)
+        .setInteractive(new Phaser.Geom.Rectangle(-30, -30, 420, 160), Phaser.Geom.Rectangle.Contains);
       this.add.text(w / 2, h * y, label, {
         fontFamily: GAME_CONFIG.font.family,
         fontSize: '40px',
