@@ -10,6 +10,11 @@ describe('Enemy', () => {
     expect(e.isDead()).toBe(false);
   });
 
+  it('exposes the wave number it was spawned in', () => {
+    const e = new Enemy('GOBLIN', 7, 2);
+    expect(e.wave).toBe(7);
+  });
+
   it('scales hp by wave multiplier 1.15', () => {
     const w1 = new Enemy('GOBLIN', 1, 0);
     const w5 = new Enemy('GOBLIN', 5, 0);

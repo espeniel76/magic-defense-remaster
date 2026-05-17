@@ -76,6 +76,11 @@ export class BoardView {
 
     container.add([hat, body, eyeL, eyeR]);
 
+    // Visual scale grows with level: L1 = 1.0, L2 = 1.1, L3 = 1.22, L4+ = 1.35
+    const scaleMap = { 1: 1.0, 2: 1.1, 3: 1.22, 4: 1.35, 5: 1.45 };
+    const scale = scaleMap[mage.level] ?? 1.0;
+    container.setScale(scale);
+
     // Make container draggable
     const hitW = size * 2.2;
     const hitH = size * 2.8;

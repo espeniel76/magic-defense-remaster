@@ -7,6 +7,7 @@ export class Enemy {
       throw new Error(`Unknown enemy type: ${typeId}`);
     }
     this.typeId = typeId;
+    this.wave = wave;
     this.lane = lane;
     this.config = config;
     const hpScale = Math.pow(GAME_CONFIG.wave.hpScalePerWave, wave - 1);

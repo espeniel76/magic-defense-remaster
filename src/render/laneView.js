@@ -63,6 +63,11 @@ export class LaneView {
     const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeR, 0xffffff);
 
     container.add([horns, body, eyeL, eyeRight]);
+
+    // Enemies in late waves are larger and more menacing
+    if (enemy.wave >= 16) {
+      container.setScale(1.4);
+    }
     return container;
   }
 
