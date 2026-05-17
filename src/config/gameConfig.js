@@ -32,8 +32,9 @@ export const GAME_CONFIG = {
     EARTH:     { id: 'EARTH',     emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
   },
   enemies: {
-    GOBLIN:   { id: 'GOBLIN',   emoji: '👹', color: '#E74C3C', hp: 20, speed: 1.0, baseDamage: 1 },
-    SKELETON: { id: 'SKELETON', emoji: '💀', color: '#9B59B6', hp: 10, speed: 2.0, baseDamage: 1 },
+    GOBLIN:   { id: 'GOBLIN',   emoji: '👹', color: '#E74C3C', hp: 20,  speed: 1.0, baseDamage: 1 },
+    SKELETON: { id: 'SKELETON', emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
+    BOSS:     { id: 'BOSS',     emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
   },
   wave: {
     baseCount: 10,
@@ -48,6 +49,7 @@ export const GAME_CONFIG = {
     skeletonMidWave: 10,
     skeletonMidRatio: 0.5,
     maxConsecutiveSameLane: 3,
+    bossInterval: 10,
   },
   lane: {
     enemyMoveDistancePerSecond: 120,

@@ -22,7 +22,11 @@ export class WaveManager {
   startNextWave() {
     this.currentWave += 1;
     const cfg = GAME_CONFIG.wave;
-    this.spawnsLeft = cfg.baseCount + (this.currentWave - 1) * cfg.countIncrement;
+    if (this.isBossWave(this.currentWave)) {
+      this.spawnsLeft = 1; // single boss for boss waves
+    } else {
+      this.spawnsLeft = cfg.baseCount + (this.currentWave - 1) * cfg.countIncrement;
+    }
     this.spawnedThisWave = 0;
     this.spawnInterval = Math.max(
       cfg.minSpawnInterval,
@@ -71,7 +75,13 @@ export class WaveManager {
     return lane;
   }
 
+  isBossWave(wave) {
+    const interval = GAME_CONFIG.wave.bossInterval;
+    return wave > 0 && wave % interval === 0;
+  }
+
   pickType() {
+    if (this.isBossWave(this.currentWave)) return 'BOSS';
     const ratio = this.computeSkeletonRatio(this.currentWave);
     return Math.random() < ratio ? 'SKELETON' : 'GOBLIN';
   }
@@ -100,11 +110,11 @@ export class WaveManager {
     this.spawnTimer += dtMs;
     while (this.spawnTimer >= this.spawnInterval && this.spawnsLeft > 0) {
       this.spawnTimer -= this.spawnInterval;
-      result.spawns.push({
-        typeId: this.pickType(),
-        lane: this.pickLane(),
-        wave: this.currentWave,
-      });
+      const typeId = this.pickType();
+      const lane = (typeId === 'BOSS')
+        ? Math.floor(GAME_CONFIG.lanes.count / 2)  // middle lane for boss
+        : this.pickLane();
+      result.spawns.push({ typeId, lane, wave: this.currentWave });
       this.spawnsLeft -= 1;
       this.spawnedThisWave += 1;
     }

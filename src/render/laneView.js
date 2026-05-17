@@ -29,56 +29,48 @@ export class LaneView {
 
   _buildEnemySprite(enemy) {
     const color = hexToInt(enemy.config.color ?? '#888888');
-    const r = 30; // body radius (was 24)
+    const isBoss = enemy.typeId === 'BOSS';
     const isLateWave = enemy.wave >= 16;
+    const r = isBoss ? 50 : 30;
 
     const container = this.scene.add.container(0, 0);
 
     const horns = this.scene.add.graphics();
     horns.fillStyle(color, 1);
 
-    if (isLateWave) {
-      // Flame-like horns (curved teardrop). Two flames, one per side.
+    if (isBoss || isLateWave) {
+      // Flame-like horns (curved)
       // Left flame
       horns.beginPath();
       horns.moveTo(-r * 0.55, -r * 0.55);
-      horns.bezierCurveTo(
-        -r * 0.95, -r * 1.0,
-        -r * 0.6, -r * 1.6,
-        -r * 0.2, -r * 1.9
-      );
-      horns.bezierCurveTo(
-        -r * 0.05, -r * 1.5,
-        -r * 0.2, -r * 1.0,
-        -r * 0.15, -r * 0.55
-      );
+      horns.bezierCurveTo(-r * 0.95, -r * 1.0, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.9);
+      horns.bezierCurveTo(-r * 0.05, -r * 1.5, -r * 0.2, -r * 1.0, -r * 0.15, -r * 0.55);
       horns.closePath();
       horns.fillPath();
-      // Right flame (mirror)
+      // Right flame
       horns.beginPath();
       horns.moveTo(r * 0.55, -r * 0.55);
-      horns.bezierCurveTo(
-        r * 0.95, -r * 1.0,
-        r * 0.6, -r * 1.6,
-        r * 0.2, -r * 1.9
-      );
-      horns.bezierCurveTo(
-        r * 0.05, -r * 1.5,
-        r * 0.2, -r * 1.0,
-        r * 0.15, -r * 0.55
-      );
+      horns.bezierCurveTo(r * 0.95, -r * 1.0, r * 0.6, -r * 1.6, r * 0.2, -r * 1.9);
+      horns.bezierCurveTo(r * 0.05, -r * 1.5, r * 0.2, -r * 1.0, r * 0.15, -r * 0.55);
       horns.closePath();
       horns.fillPath();
+      if (isBoss) {
+        // Center flame (third spike)
+        horns.beginPath();
+        horns.moveTo(-r * 0.2, -r * 0.55);
+        horns.bezierCurveTo(-r * 0.35, -r * 1.4, -r * 0.1, -r * 2.0, 0, -r * 2.2);
+        horns.bezierCurveTo(r * 0.1, -r * 2.0, r * 0.35, -r * 1.4, r * 0.2, -r * 0.55);
+        horns.closePath();
+        horns.fillPath();
+      }
     } else {
-      // Standard pointed horns (straight triangles)
-      // Left horn
+      // Standard pointed horns
       horns.beginPath();
       horns.moveTo(-r * 0.45, -r * 1.4);
       horns.lineTo(-r * 0.75, -r * 0.6);
       horns.lineTo(-r * 0.15, -r * 0.6);
       horns.closePath();
       horns.fillPath();
-      // Right horn
       horns.beginPath();
       horns.moveTo(r * 0.45, -r * 1.4);
       horns.lineTo(r * 0.15, -r * 0.6);
@@ -89,18 +81,31 @@ export class LaneView {
 
     // Body
     const body = this.scene.add.circle(0, 0, r, color);
-    body.setStrokeStyle(2, 0x000000);
+    body.setStrokeStyle(isBoss ? 3 : 2, 0x000000);
 
-    // Eyes — bigger (was 0.22, now 0.30)
-    const eyeR = r * 0.30;
+    // Eyes
+    const eyeRsize = r * 0.30;
     const eyeY = r * 0.05;
     const eyeOffsetX = r * 0.40;
-    const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeR, 0xffffff);
-    const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeR, 0xffffff);
+    const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeRsize, 0xffffff);
+    const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeRsize, 0xffffff);
 
-    container.add([horns, body, eyeL, eyeRight]);
+    // HP bar (under horns, above body)
+    const barW = isBoss ? 80 : 40;
+    const barH = isBoss ? 6 : 4;
+    const barY = isBoss ? -r * 2.5 : -r * 1.7;
+    const hpBarBg = this.scene.add.rectangle(0, barY, barW, barH, 0x000000)
+      .setStrokeStyle(1, 0xffffff);
+    const hpBarFg = this.scene.add.rectangle(-barW / 2, barY, barW, barH, 0x2ecc71)
+      .setOrigin(0, 0.5);
 
-    if (isLateWave) {
+    container.add([horns, body, eyeL, eyeRight, hpBarBg, hpBarFg]);
+
+    // Stash HP bar refs for refresh updates
+    container._hpBarFg = hpBarFg;
+    container._hpBarMaxW = barW;
+
+    if (isLateWave && !isBoss) {
       container.setScale(1.4);
     }
     return container;
@@ -123,7 +128,19 @@ export class LaneView {
       }
       sprite.x = x;
       sprite.y = y;
-      sprite.setAlpha(enemy.hp / enemy.maxHp * 0.6 + 0.4);
+      // Body alpha based on HP (slight visual cue)
+      sprite.setAlpha(enemy.hp / enemy.maxHp * 0.4 + 0.6);
+      // HP bar update
+      if (sprite._hpBarFg) {
+        const ratio = Math.max(0, Math.min(1, enemy.hp / enemy.maxHp));
+        sprite._hpBarFg.width = sprite._hpBarMaxW * ratio;
+        // Color shift: green > yellow > red
+        let barColor;
+        if (ratio > 0.6) barColor = 0x2ecc71;       // green
+        else if (ratio > 0.3) barColor = 0xf1c40f;  // yellow
+        else barColor = 0xe74c3c;                    // red
+        sprite._hpBarFg.fillColor = barColor;
+      }
     }
   }
 }

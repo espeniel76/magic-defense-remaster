@@ -80,4 +80,46 @@ describe('WaveManager', () => {
       expect(lanes[i] === lanes[i+1] && lanes[i] === lanes[i+2] && lanes[i] === lanes[i+3]).toBe(false);
     }
   });
+
+  it('wave 10 is a boss wave with exactly 1 BOSS spawn', () => {
+    const wm = new WaveManager();
+    wm.currentWave = 9; // about to start wave 10
+    wm.started = true;
+    wm.startNextWave();
+    expect(wm.getCurrentWave()).toBe(10);
+    expect(wm.isBossWave(10)).toBe(true);
+    let bossSpawns = 0;
+    let totalSpawns = 0;
+    for (let i = 0; i < 5; i++) {
+      const r = wm.update(2000);
+      for (const s of r.spawns) {
+        totalSpawns += 1;
+        if (s.typeId === 'BOSS') bossSpawns += 1;
+      }
+      if (r.waveEnded) break;
+    }
+    expect(totalSpawns).toBe(1);
+    expect(bossSpawns).toBe(1);
+  });
+
+  it('wave 11 returns to normal enemy counts (no boss)', () => {
+    const wm = new WaveManager();
+    wm.currentWave = 10;
+    wm.started = true;
+    wm.startNextWave();
+    expect(wm.getCurrentWave()).toBe(11);
+    expect(wm.isBossWave(11)).toBe(false);
+    let total = 0;
+    let bossCount = 0;
+    for (let i = 0; i < 80; i++) {
+      const r = wm.update(2000);
+      for (const s of r.spawns) {
+        total += 1;
+        if (s.typeId === 'BOSS') bossCount += 1;
+      }
+      if (r.waveEnded) break;
+    }
+    expect(total).toBe(30); // 10 + (11-1)*2
+    expect(bossCount).toBe(0);
+  });
 });
