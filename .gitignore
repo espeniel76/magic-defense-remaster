@@ -4,3 +4,6 @@ dist/
 .DS_Store
 *.log
 .superpowers/
+.env
+.env.local
+.env.*.local
