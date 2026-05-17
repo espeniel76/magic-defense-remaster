@@ -32,11 +32,11 @@ export const GAME_CONFIG = {
     EARTH:     { id: 'EARTH',     emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
   },
   enemies: {
-    GOBLIN:   { id: 'GOBLIN',   emoji: '👹', color: '#E74C3C', hp: 20,  speed: 1.0, baseDamage: 1 },
-    SKELETON: { id: 'SKELETON', emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
-    BOSS:     { id: 'BOSS',     emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
-    ELITE:    { id: 'ELITE',    emoji: '⭐', color: '#F1C40F', hp: 40,  speed: 1.0, baseDamage: 2 },
-    TITAN:    { id: 'TITAN',    emoji: '🔷', color: '#2196F3', hp: 60,  speed: 0.9, baseDamage: 3 },
+    GOBLIN:   { id: 'GOBLIN',   displayName: '일반',   emoji: '👹', color: '#E74C3C', hp: 20,  speed: 1.0, baseDamage: 1 },
+    SKELETON: { id: 'SKELETON', displayName: '빠른',   emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
+    BOSS:     { id: 'BOSS',     displayName: '보스',   emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
+    ELITE:    { id: 'ELITE',    displayName: '정예',   emoji: '⭐', color: '#F1C40F', hp: 40,  speed: 1.0, baseDamage: 2 },
+    TITAN:    { id: 'TITAN',    displayName: '거대',   emoji: '🔷', color: '#2196F3', hp: 60,  speed: 0.9, baseDamage: 3 },
   },
   wave: {
     baseCount: 10,

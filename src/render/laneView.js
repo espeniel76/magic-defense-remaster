@@ -5,6 +5,73 @@ function hexToInt(hex) {
   return parseInt(hex.replace('#', ''), 16);
 }
 
+export function buildEnemyDisplaySprite(scene, typeId, wave = 1) {
+  const cfg = GAME_CONFIG.enemies[typeId];
+  if (!cfg) throw new Error(`Unknown enemy type: ${typeId}`);
+  const color = hexToInt(cfg.color);
+  const isBoss = typeId === 'BOSS';
+  const isElite = typeId === 'ELITE';
+  const isTitan = typeId === 'TITAN';
+  const isLateWave = wave >= 16;
+  const r = isBoss ? 50 : (isTitan ? 70 : (isElite ? 40 : 30));
+
+  const container = scene.add.container(0, 0);
+  const horns = scene.add.graphics();
+  horns.fillStyle(color, 1);
+
+  if (isBoss || isLateWave) {
+    horns.beginPath();
+    horns.moveTo(-r * 0.55, -r * 0.55);
+    horns.bezierCurveTo(-r * 0.95, -r * 1.0, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.9);
+    horns.bezierCurveTo(-r * 0.05, -r * 1.5, -r * 0.2, -r * 1.0, -r * 0.15, -r * 0.55);
+    horns.closePath();
+    horns.fillPath();
+    horns.beginPath();
+    horns.moveTo(r * 0.55, -r * 0.55);
+    horns.bezierCurveTo(r * 0.95, -r * 1.0, r * 0.6, -r * 1.6, r * 0.2, -r * 1.9);
+    horns.bezierCurveTo(r * 0.05, -r * 1.5, r * 0.2, -r * 1.0, r * 0.15, -r * 0.55);
+    horns.closePath();
+    horns.fillPath();
+    if (isBoss) {
+      horns.beginPath();
+      horns.moveTo(-r * 0.2, -r * 0.55);
+      horns.bezierCurveTo(-r * 0.35, -r * 1.4, -r * 0.1, -r * 2.0, 0, -r * 2.2);
+      horns.bezierCurveTo(r * 0.1, -r * 2.0, r * 0.35, -r * 1.4, r * 0.2, -r * 0.55);
+      horns.closePath();
+      horns.fillPath();
+    }
+  } else {
+    horns.beginPath();
+    horns.moveTo(-r * 0.45, -r * 1.4);
+    horns.lineTo(-r * 0.75, -r * 0.6);
+    horns.lineTo(-r * 0.15, -r * 0.6);
+    horns.closePath();
+    horns.fillPath();
+    horns.beginPath();
+    horns.moveTo(r * 0.45, -r * 1.4);
+    horns.lineTo(r * 0.15, -r * 0.6);
+    horns.lineTo(r * 0.75, -r * 0.6);
+    horns.closePath();
+    horns.fillPath();
+  }
+
+  const body = scene.add.circle(0, 0, r, color);
+  body.setStrokeStyle(isBoss ? 3 : 2, 0x000000);
+
+  const eyeR = r * 0.30;
+  const eyeY = r * 0.05;
+  const eyeOffsetX = r * 0.40;
+  const eyeL = scene.add.circle(-eyeOffsetX, eyeY, eyeR, 0xffffff);
+  const eyeRight = scene.add.circle(eyeOffsetX, eyeY, eyeR, 0xffffff);
+
+  container.add([horns, body, eyeL, eyeRight]);
+
+  if (isElite) body.setStrokeStyle(3, 0xffffff);
+  if (isTitan) body.setStrokeStyle(4, 0xffffff);
+
+  return { container, radius: r };
+}
+
 export class LaneView {
   constructor(scene, x, y, width, height, lane) {
     this.scene = scene;
@@ -42,71 +109,10 @@ export class LaneView {
   }
 
   _buildEnemySprite(enemy) {
-    const color = hexToInt(enemy.config.color ?? '#888888');
-    const isBoss = enemy.typeId === 'BOSS';
-    const isLateWave = enemy.wave >= 16;
-    const isElite = enemy.typeId === 'ELITE';
-    const isTitan = enemy.typeId === 'TITAN';
-    const r = isBoss ? 50 : (isTitan ? 70 : (isElite ? 40 : 30));
-
-    const container = this.scene.add.container(0, 0);
-
-    const horns = this.scene.add.graphics();
-    horns.fillStyle(color, 1);
-
-    if (isBoss || isLateWave) {
-      // Flame-like horns (curved)
-      // Left flame
-      horns.beginPath();
-      horns.moveTo(-r * 0.55, -r * 0.55);
-      horns.bezierCurveTo(-r * 0.95, -r * 1.0, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.9);
-      horns.bezierCurveTo(-r * 0.05, -r * 1.5, -r * 0.2, -r * 1.0, -r * 0.15, -r * 0.55);
-      horns.closePath();
-      horns.fillPath();
-      // Right flame
-      horns.beginPath();
-      horns.moveTo(r * 0.55, -r * 0.55);
-      horns.bezierCurveTo(r * 0.95, -r * 1.0, r * 0.6, -r * 1.6, r * 0.2, -r * 1.9);
-      horns.bezierCurveTo(r * 0.05, -r * 1.5, r * 0.2, -r * 1.0, r * 0.15, -r * 0.55);
-      horns.closePath();
-      horns.fillPath();
-      if (isBoss) {
-        // Center flame (third spike)
-        horns.beginPath();
-        horns.moveTo(-r * 0.2, -r * 0.55);
-        horns.bezierCurveTo(-r * 0.35, -r * 1.4, -r * 0.1, -r * 2.0, 0, -r * 2.2);
-        horns.bezierCurveTo(r * 0.1, -r * 2.0, r * 0.35, -r * 1.4, r * 0.2, -r * 0.55);
-        horns.closePath();
-        horns.fillPath();
-      }
-    } else {
-      // Standard pointed horns
-      horns.beginPath();
-      horns.moveTo(-r * 0.45, -r * 1.4);
-      horns.lineTo(-r * 0.75, -r * 0.6);
-      horns.lineTo(-r * 0.15, -r * 0.6);
-      horns.closePath();
-      horns.fillPath();
-      horns.beginPath();
-      horns.moveTo(r * 0.45, -r * 1.4);
-      horns.lineTo(r * 0.15, -r * 0.6);
-      horns.lineTo(r * 0.75, -r * 0.6);
-      horns.closePath();
-      horns.fillPath();
-    }
-
-    // Body
-    const body = this.scene.add.circle(0, 0, r, color);
-    body.setStrokeStyle(isBoss ? 3 : 2, 0x000000);
-
-    // Eyes
-    const eyeRsize = r * 0.30;
-    const eyeY = r * 0.05;
-    const eyeOffsetX = r * 0.40;
-    const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeRsize, 0xffffff);
-    const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeRsize, 0xffffff);
+    const { container, radius: r } = buildEnemyDisplaySprite(this.scene, enemy.typeId, enemy.wave);
 
     // HP bar (under horns, above body)
+    const isBoss = enemy.typeId === 'BOSS';
     const barW = isBoss ? 80 : 40;
     const barH = isBoss ? 6 : 4;
     const barY = isBoss ? -r * 2.5 : -r * 1.7;
@@ -114,19 +120,15 @@ export class LaneView {
       .setStrokeStyle(1, 0xffffff);
     const hpBarFg = this.scene.add.rectangle(-barW / 2, barY, barW, barH, 0x2ecc71)
       .setOrigin(0, 0.5);
-
-    container.add([horns, body, eyeL, eyeRight, hpBarBg, hpBarFg]);
-
-    // Stash HP bar refs for refresh updates
+    container.add([hpBarBg, hpBarFg]);
     container._hpBarFg = hpBarFg;
     container._hpBarMaxW = barW;
 
+    const isElite = enemy.typeId === 'ELITE';
+    const isTitan = enemy.typeId === 'TITAN';
+    const isLateWave = enemy.wave >= 16;
     if (isLateWave && !isBoss && !isElite && !isTitan) {
       container.setScale(1.4);
-    } else if (isElite) {
-      body.setStrokeStyle(3, 0xffffff);
-    } else if (isTitan) {
-      body.setStrokeStyle(4, 0xffffff);
     }
     return container;
   }
