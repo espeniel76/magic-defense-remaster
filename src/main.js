@@ -1,4 +1,8 @@
 import Phaser from 'phaser';
+import { TitleScene } from './scenes/titleScene.js';
+import { GameScene } from './scenes/gameScene.js';
+import { GameOverScene } from './scenes/gameOverScene.js';
+import { GAME_CONFIG } from './config/gameConfig.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -7,17 +11,10 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 720,
-    height: 1280,
+    width: GAME_CONFIG.display.width,
+    height: GAME_CONFIG.display.height,
   },
-  scene: {
-    create() {
-      this.add.text(360, 640, '매직디펜스', {
-        fontSize: '64px',
-        color: '#ffffff',
-      }).setOrigin(0.5);
-    },
-  },
+  scene: [TitleScene, GameScene, GameOverScene],
 };
 
 new Phaser.Game(config);
