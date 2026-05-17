@@ -4,6 +4,8 @@ import { StatusBarView } from '../render/statusBarView.js';
 import { MergeBoard } from '../core/mergeBoard.js';
 import { BoardView } from '../render/boardView.js';
 import { ActionBarView } from '../render/actionBarView.js';
+import { EconomyManager } from '../core/economyManager.js';
+import { Mage } from '../core/mage.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -38,11 +40,34 @@ export class GameScene extends Phaser.Scene {
 
     // Action bar
     this.actionBar = new ActionBarView(this, 0, STATUS_H + LANE_H + BOARD_H, w, ACTION_H);
-    this.actionBar.onSummon = () => {
-      console.log('[summon clicked]'); // 다음 태스크에서 실제 동작 연결
-    };
+    this.economy = new EconomyManager();
+    this.statusBar.setGold(this.economy.getGold());
+    this.actionBar.setSummonCost(this.economy.getSummonCost());
+
+    this.actionBar.onSummon = () => this.handleSummon();
     this.actionBar.onSpeedToggle = () => {
       console.log('[speed toggle]');
     };
+  }
+
+  handleSummon() {
+    if (!this.economy.canSummon()) return;
+    if (this.board.getEmptyCells().length === 0) return;
+    const ids = ['FIRE', 'ICE', 'LIGHTNING', 'EARTH'];
+    const pick = ids[Math.floor(Math.random() * ids.length)];
+    const mage = new Mage(pick, 1);
+    const cell = this.board.placeAtRandomEmpty(mage);
+    if (!cell) return;
+    this.economy.spendSummon();
+    this.statusBar.setGold(this.economy.getGold());
+    this.actionBar.setSummonCost(this.economy.getSummonCost());
+    this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
+    this.boardView.refreshAll();
+  }
+
+  update(_time, dtMs) {
+    this.economy.update(dtMs);
+    this.statusBar.setGold(this.economy.getGold());
+    this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
   }
 }
