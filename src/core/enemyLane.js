@@ -29,6 +29,18 @@ export class EnemyLane {
     return best;
   }
 
+  getFrontmostOfAll() {
+    let best = null;
+    for (let i = 0; i < this.laneCount; i++) {
+      for (const e of this.lanes[i]) {
+        if (best === null || e.position > best.position) {
+          best = e;
+        }
+      }
+    }
+    return best;
+  }
+
   update(dtMs) {
     const reached = [];
     const killed = [];

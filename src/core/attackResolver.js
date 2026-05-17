@@ -13,7 +13,7 @@ export class AttackResolver {
     for (const { mage, col } of this.board.allMages()) {
       const interval = mage.getAttackIntervalMs();
       if (this.elapsedMs - mage.lastAttackAt < interval) continue;
-      const target = this.lane.getFrontmostInLane(col);
+      const target = this.lane.getFrontmostOfAll();
       if (!target) continue;
       mage.lastAttackAt = this.elapsedMs;
       const damage = mage.getDamage();
