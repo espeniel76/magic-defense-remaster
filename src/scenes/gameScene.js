@@ -6,6 +6,9 @@ import { BoardView } from '../render/boardView.js';
 import { ActionBarView } from '../render/actionBarView.js';
 import { EconomyManager } from '../core/economyManager.js';
 import { Mage } from '../core/mage.js';
+import { EnemyLane } from '../core/enemyLane.js';
+import { LaneView } from '../render/laneView.js';
+import { Enemy } from '../core/enemy.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -26,11 +29,10 @@ export class GameScene extends Phaser.Scene {
     this.statusBar.setWave(1);
     this.statusBar.setGold(GAME_CONFIG.player.startGold);
 
-    // Lane area placeholder
+    // Lane area
     this.add.rectangle(0, STATUS_H, w, LANE_H, 0x3a2818).setOrigin(0);
-    this.add.text(w / 2, STATUS_H + LANE_H / 2, '적 레인 영역\n(다음 단계에서 구현)', {
-      fontSize: '24px', color: '#aaaaaa', align: 'center',
-    }).setOrigin(0.5);
+    this.enemyLane = new EnemyLane();
+    this.laneView = new LaneView(this, 0, STATUS_H, w, LANE_H, this.enemyLane);
 
     // Board area
     this.add.rectangle(0, STATUS_H + LANE_H, w, BOARD_H, 0x1a2540).setOrigin(0);
@@ -97,6 +99,8 @@ export class GameScene extends Phaser.Scene {
 
   update(_time, dtMs) {
     this.economy.update(dtMs);
+    this.enemyLane.update(dtMs);
+    this.laneView.refresh();
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
   }
