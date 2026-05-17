@@ -1,8 +1,8 @@
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
 export class WaveManager {
-  constructor(specialMode = false) {
-    this.specialMode = specialMode;
+  constructor(mode = 'normal') {
+    this.mode = mode;
     this.currentWave = 0;
     this.spawnsLeft = 0;
     this.spawnedThisWave = 0;
@@ -83,7 +83,10 @@ export class WaveManager {
 
   pickType() {
     if (this.isBossWave(this.currentWave)) return 'BOSS';
-    if (this.specialMode && Math.random() < GAME_CONFIG.hardMode.eliteSpawnRatio) {
+    const specialMode = this.mode === 'hard' || this.mode === 'hell';
+    if (specialMode && Math.random() < GAME_CONFIG.hardMode.eliteSpawnRatio) {
+      // In hell mode, half the elite rolls become TITAN instead.
+      if (this.mode === 'hell' && Math.random() < 0.5) return 'TITAN';
       return 'ELITE';
     }
     const ratio = this.computeSkeletonRatio(this.currentWave);

@@ -72,7 +72,7 @@ export class GameScene extends Phaser.Scene {
 
     this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
-    this.waveManager = new WaveManager(this.mode !== 'normal');
+    this.waveManager = new WaveManager(this.mode);
     this.waveManager.start();
     this.hp = GAME_CONFIG.player.startHp;
     this.statusBar.setHp(this.hp);

@@ -36,6 +36,7 @@ export const GAME_CONFIG = {
     SKELETON: { id: 'SKELETON', emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
     BOSS:     { id: 'BOSS',     emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
     ELITE:    { id: 'ELITE',    emoji: '⭐', color: '#F1C40F', hp: 40,  speed: 1.0, baseDamage: 2 },
+    TITAN:    { id: 'TITAN',    emoji: '🔷', color: '#2196F3', hp: 60,  speed: 0.9, baseDamage: 3 },
   },
   wave: {
     baseCount: 10,
@@ -75,7 +76,7 @@ export const GAME_CONFIG = {
     eliteSpawnRatio: 0.2,
   },
   zonesHell: [
-    { name: '신비의숲',    color: 0x2D0040 },
+    { name: '금지된 영역', color: 0x2D0040 },
     { name: '얼음설원',    color: 0x2D0040 },
     { name: '화산천지',    color: 0x2D0040 },
     { name: '망각의 바다', color: 0x2D0040 },

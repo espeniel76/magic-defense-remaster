@@ -46,7 +46,8 @@ export class LaneView {
     const isBoss = enemy.typeId === 'BOSS';
     const isLateWave = enemy.wave >= 16;
     const isElite = enemy.typeId === 'ELITE';
-    const r = isBoss ? 50 : (isElite ? 40 : 30);
+    const isTitan = enemy.typeId === 'TITAN';
+    const r = isBoss ? 50 : (isTitan ? 70 : (isElite ? 40 : 30));
 
     const container = this.scene.add.container(0, 0);
 
@@ -120,11 +121,12 @@ export class LaneView {
     container._hpBarFg = hpBarFg;
     container._hpBarMaxW = barW;
 
-    if (isLateWave && !isBoss && !isElite) {
+    if (isLateWave && !isBoss && !isElite && !isTitan) {
       container.setScale(1.4);
     } else if (isElite) {
-      // Elites get a star-glow stroke to stand out on similar-colored backgrounds
       body.setStrokeStyle(3, 0xffffff);
+    } else if (isTitan) {
+      body.setStrokeStyle(4, 0xffffff);
     }
     return container;
   }

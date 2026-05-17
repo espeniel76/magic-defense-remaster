@@ -124,7 +124,7 @@ describe('WaveManager', () => {
   });
 
   it('hard mode occasionally spawns ELITE enemies', () => {
-    const wm = new WaveManager(true);
+    const wm = new WaveManager('hard');
     wm.start();
     const types = new Set();
     for (let i = 0; i < 200; i++) {
@@ -136,5 +136,21 @@ describe('WaveManager', () => {
       }
     }
     expect(types.has('ELITE')).toBe(true);
+  });
+
+  it('hell mode spawns both ELITE and TITAN', () => {
+    const wm = new WaveManager('hell');
+    wm.start();
+    const types = new Set();
+    for (let i = 0; i < 400; i++) {
+      const r = wm.update(2000);
+      for (const s of r.spawns) types.add(s.typeId);
+      if (wm.isInIntermission()) {
+        wm.notifyEnemiesCleared();
+        wm.update(5001);
+      }
+    }
+    expect(types.has('ELITE')).toBe(true);
+    expect(types.has('TITAN')).toBe(true);
   });
 });
