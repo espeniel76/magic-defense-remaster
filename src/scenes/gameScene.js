@@ -10,6 +10,7 @@ import { EnemyLane } from '../core/enemyLane.js';
 import { LaneView } from '../render/laneView.js';
 import { Enemy } from '../core/enemy.js';
 import { WaveManager } from '../core/waveManager.js';
+import { AttackResolver } from '../core/attackResolver.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -41,6 +42,8 @@ export class GameScene extends Phaser.Scene {
     this.board = new MergeBoard();
     this.boardView = new BoardView(this, 0, STATUS_H + LANE_H, w, BOARD_H, this.board);
     this.boardView.refreshAll();
+
+    this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
     this.waveManager = new WaveManager();
     this.waveManager.start();
@@ -118,6 +121,12 @@ export class GameScene extends Phaser.Scene {
       this.statusBar.setWave(this.waveManager.getCurrentWave());
     }
 
+    // Mage attacks
+    const attacks = this.attackResolver.update(dtMs);
+    for (const atk of attacks) {
+      this._renderAttackFx(atk);
+    }
+
     // Enemy movement and base reach
     const laneResult = this.enemyLane.update(dtMs);
     for (const reached of laneResult.reached) {
@@ -140,6 +149,28 @@ export class GameScene extends Phaser.Scene {
     this.laneView.refresh();
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
+  }
+
+  _renderAttackFx(atk) {
+    const fromCells = this.board.magesInColumn(atk.mageCol);
+    if (fromCells.length === 0) return;
+    const from = this.boardView.getCellCenter(fromCells[0].col, fromCells[0].row);
+    if (!from) return;
+    const toWorld = this.laneView.laneToWorld(atk.primaryTarget.lane, atk.primaryTarget.position);
+    const colorMap = {
+      single: 0xe74c3c, slow: 0x5dade2, chain: 0xf4d03f, aoe: 0xa0522d,
+    };
+    const color = colorMap[atk.type] ?? 0xffffff;
+    const line = this.add.line(0, 0, from.x, from.y, toWorld.x, toWorld.y, color, 0.9)
+      .setOrigin(0, 0)
+      .setLineWidth(3);
+    this.tweens.add({ targets: line, alpha: 0, duration: 200, onComplete: () => line.destroy() });
+
+    for (const sec of atk.secondaryTargets) {
+      const sw = this.laneView.laneToWorld(sec.lane, sec.position);
+      const l2 = this.add.line(0, 0, toWorld.x, toWorld.y, sw.x, sw.y, color, 0.7).setOrigin(0,0).setLineWidth(2);
+      this.tweens.add({ targets: l2, alpha: 0, duration: 200, onComplete: () => l2.destroy() });
+    }
   }
 
   triggerGameOver() {
