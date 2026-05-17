@@ -9,6 +9,7 @@ import { Mage } from '../core/mage.js';
 import { EnemyLane } from '../core/enemyLane.js';
 import { LaneView } from '../render/laneView.js';
 import { Enemy } from '../core/enemy.js';
+import { WaveManager } from '../core/waveManager.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -16,6 +17,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.isGameOver = false;
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -39,6 +41,12 @@ export class GameScene extends Phaser.Scene {
     this.board = new MergeBoard();
     this.boardView = new BoardView(this, 0, STATUS_H + LANE_H, w, BOARD_H, this.board);
     this.boardView.refreshAll();
+
+    this.waveManager = new WaveManager();
+    this.waveManager.start();
+    this.hp = GAME_CONFIG.player.startHp;
+    this.statusBar.setHp(this.hp);
+    this.statusBar.setWave(this.waveManager.getCurrentWave());
 
     // Action bar
     this.actionBar = new ActionBarView(this, 0, STATUS_H + LANE_H + BOARD_H, w, ACTION_H);
@@ -98,10 +106,44 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time, dtMs) {
+    if (this.isGameOver) return;
     this.economy.update(dtMs);
-    this.enemyLane.update(dtMs);
+
+    // Wave: spawn enemies
+    const wave = this.waveManager.update(dtMs);
+    for (const spawn of wave.spawns) {
+      this.enemyLane.spawn(new Enemy(spawn.typeId, spawn.wave, spawn.lane));
+    }
+    if (wave.waveStarted) {
+      this.statusBar.setWave(this.waveManager.getCurrentWave());
+    }
+
+    // Enemy movement and base reach
+    const laneResult = this.enemyLane.update(dtMs);
+    for (const reached of laneResult.reached) {
+      this.hp -= reached.config.baseDamage;
+      this.statusBar.setHp(Math.max(0, this.hp));
+      if (this.hp <= 0) {
+        this.triggerGameOver();
+        return;
+      }
+    }
+    for (const _killed of laneResult.killed) {
+      this.economy.rewardKill();
+    }
+
+    // Notify wave manager when no enemies remain (for intermission)
+    if (this.waveManager.isInIntermission() && this.enemyLane.allEnemies().length === 0) {
+      this.waveManager.notifyEnemiesCleared();
+    }
+
     this.laneView.refresh();
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
+  }
+
+  triggerGameOver() {
+    this.isGameOver = true;
+    this.scene.start('GameOverScene', { wave: this.waveManager.getCurrentWave() });
   }
 }
