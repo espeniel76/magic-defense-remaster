@@ -1,14 +1,18 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
-const MAGE_LABELS = { FIRE: '불', ICE: '얼', LIGHTNING: '전', EARTH: '땅' };
+const MAGE_LABELS = { FIRE: '불', ICE: '얼음', LIGHTNING: '전기', EARTH: '땅' };
+
+function hexToInt(hex) {
+  return parseInt(hex.replace('#', ''), 16);
+}
 
 export class BoardView {
   constructor(scene, x, y, width, height, board) {
     this.scene = scene;
     this.board = board;
     this.area = { x, y, width, height };
-    this.cells = []; // [col][row] = { rect, mageShape|null, mageText|null, levelText|null }
+    this.cells = [];
     this.cellSize = Math.floor(Math.min(width / board.cols, height / board.rows) * 0.9);
     this.gap = 8;
     const totalW = board.cols * this.cellSize + (board.cols - 1) * this.gap;
@@ -22,7 +26,7 @@ export class BoardView {
         const cx = this.originX + c * (this.cellSize + this.gap) + this.cellSize / 2;
         const cy = this.originY + r * (this.cellSize + this.gap) + this.cellSize / 2;
         const rect = scene.add.rectangle(cx, cy, this.cellSize, this.cellSize, 0x2d4565).setStrokeStyle(2, 0x3a5d8f);
-        this.cells[c][r] = { rect, x: cx, y: cy, mageShape: null, mageText: null, levelText: null };
+        this.cells[c][r] = { rect, x: cx, y: cy, container: null, levelText: null };
       }
     }
   }
@@ -37,36 +41,70 @@ export class BoardView {
 
   _refreshCell(c, r) {
     const cell = this.cells[c][r];
-    const mage = this.board.getMageAt(c, r);
-    if (cell.mageShape) { cell.mageShape.destroy(); cell.mageShape = null; }
-    if (cell.mageText) { cell.mageText.destroy(); cell.mageText = null; }
+    if (cell.container) { cell.container.destroy(); cell.container = null; }
     if (cell.levelText) { cell.levelText.destroy(); cell.levelText = null; }
+
+    const mage = this.board.getMageAt(c, r);
     if (!mage) return;
 
-    const colorHex = parseInt(mage.config.color.replace('#', ''), 16);
-    const shape = this.scene.add.circle(cell.x, cell.y, this.cellSize * 0.4, colorHex);
-    shape.setStrokeStyle(2, 0xffffff);
-    shape.setInteractive({ draggable: true });
-    shape.setData('col', c);
-    shape.setData('row', r);
-    this.scene.input.setDraggable(shape);
-    cell.mageShape = shape;
+    const bodyColor = hexToInt(mage.config.color);
+    const hatColor = hexToInt(mage.config.hatColor ?? mage.config.color);
+    const size = this.cellSize * 0.4; // body radius
 
-    const label = MAGE_LABELS[mage.classId] ?? '?';
-    cell.mageText = this.scene.add.text(cell.x, cell.y, label, {
-      fontFamily: GAME_CONFIG.font.family,
-      fontSize: `${Math.floor(this.cellSize * 0.38)}px`,
-      fontStyle: 'bold',
-      color: '#ffffff',
-    }).setOrigin(0.5);
+    const container = this.scene.add.container(cell.x, cell.y);
 
-    cell.levelText = this.scene.add.text(cell.x + this.cellSize / 2 - 4, cell.y + this.cellSize / 2 - 4, `L${mage.level}`, {
-      fontFamily: GAME_CONFIG.font.family,
-      fontSize: `${Math.floor(this.cellSize * 0.22)}px`,
-      color: '#ffffff',
-      backgroundColor: '#000000',
-      padding: { left: 4, right: 4 },
-    }).setOrigin(1);
+    // Body circle
+    const body = this.scene.add.circle(0, size * 0.15, size, bodyColor);
+    body.setStrokeStyle(2, 0xffffff);
+
+    // Hat (triangle) on top of body
+    const hatBase = size * 1.05;
+    const hatTopY = -size * 1.55;
+    const hatBottomY = -size * 0.55;
+    const hat = this.scene.add.triangle(
+      0, 0,
+      0, hatTopY,
+      -hatBase / 2, hatBottomY,
+      hatBase / 2, hatBottomY,
+      hatColor,
+    );
+
+    // Eyes
+    const eyeRadius = size * 0.18;
+    const eyeY = size * 0.05;
+    const eyeOffsetX = size * 0.35;
+    const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeRadius, 0xffffff);
+    const eyeR = this.scene.add.circle(eyeOffsetX, eyeY, eyeRadius, 0xffffff);
+
+    container.add([hat, body, eyeL, eyeR]);
+
+    // Make container draggable
+    const hitW = size * 2.2;
+    const hitH = size * 2.8;
+    container.setSize(hitW, hitH);
+    container.setInteractive(
+      new Phaser.Geom.Rectangle(-hitW / 2, -hitH / 2 + size * 0.1, hitW, hitH),
+      Phaser.Geom.Rectangle.Contains
+    );
+    container.setData('col', c);
+    container.setData('row', r);
+    this.scene.input.setDraggable(container);
+
+    cell.container = container;
+
+    // Level badge (small text in corner)
+    cell.levelText = this.scene.add.text(
+      cell.x + this.cellSize / 2 - 4,
+      cell.y + this.cellSize / 2 - 4,
+      `L${mage.level}`,
+      {
+        fontFamily: GAME_CONFIG.font.family,
+        fontSize: `${Math.floor(this.cellSize * 0.22)}px`,
+        color: '#ffffff',
+        backgroundColor: '#000000',
+        padding: { left: 4, right: 4 },
+      }
+    ).setOrigin(1);
   }
 
   getCellCenter(col, row) {
@@ -74,7 +112,6 @@ export class BoardView {
     return cell ? { x: cell.x, y: cell.y } : null;
   }
 
-  // Returns {col, row} | null
   getCellAt(worldX, worldY) {
     for (let c = 0; c < this.board.cols; c++) {
       for (let r = 0; r < this.board.rows; r++) {
