@@ -1,27 +1,60 @@
 // Procedural ambient BGM using Web Audio API.
-// No external audio file — generates a simple chord-loop pad.
+// Supports multiple tracks (chord progressions + tone).
+
+const TRACKS = {
+  // Bright sine pad — Am → F → C → G
+  default: {
+    chords: [
+      [220.00, 261.63, 329.63], // Am
+      [174.61, 220.00, 261.63], // F
+      [261.63, 329.63, 392.00], // C
+      [196.00, 246.94, 293.66], // G
+    ],
+    type: 'sine',
+    beatSec: 3.5,
+    gain: 0.05,
+  },
+  // Dark sawtooth pad — low minor cycle for hell mode
+  hell: {
+    chords: [
+      [ 87.31, 110.00, 138.59], // low Fm
+      [ 73.42,  92.50, 116.54], // low Dm
+      [ 82.41, 103.83, 130.81], // low Em
+      [ 65.41,  82.41, 103.83], // low Cm
+    ],
+    type: 'sawtooth',
+    beatSec: 4.5,
+    gain: 0.04,
+  },
+};
+
 export class BgmPlayer {
   constructor() {
     this.ctx = null;
     this.masterGain = null;
     this.timer = null;
     this.running = false;
+    this.currentTrack = null;
   }
 
-  start() {
-    if (this.running) return;
+  start(trackName = 'default') {
+    if (this.running && this.currentTrack === trackName) return;
+    if (this.running) this.stop();
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
+    const track = TRACKS[trackName] ?? TRACKS.default;
     this.ctx = new AudioCtx();
     this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.value = 0.05;
+    this.masterGain.gain.value = track.gain;
     this.masterGain.connect(this.ctx.destination);
     this.running = true;
-    this._scheduleLoop();
+    this.currentTrack = trackName;
+    this._scheduleLoop(track);
   }
 
   stop() {
     this.running = false;
+    this.currentTrack = null;
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
@@ -33,16 +66,9 @@ export class BgmPlayer {
     }
   }
 
-  _scheduleLoop() {
+  _scheduleLoop(track) {
     if (!this.running || !this.ctx) return;
-    // A-minor → F → C → G progression (Am, F, C, G frequencies)
-    const chords = [
-      [220.00, 261.63, 329.63], // Am
-      [174.61, 220.00, 261.63], // F
-      [261.63, 329.63, 392.00], // C
-      [196.00, 246.94, 293.66], // G
-    ];
-    const beatSec = 3.5; // seconds per chord
+    const { chords, type, beatSec } = track;
     let idx = 0;
     const playChord = () => {
       if (!this.running || !this.ctx) return;
@@ -51,7 +77,7 @@ export class BgmPlayer {
       const chord = chords[idx % chords.length];
       for (const freq of chord) {
         const osc = ctx.createOscillator();
-        osc.type = 'sine';
+        osc.type = type;
         osc.frequency.value = freq;
         const env = ctx.createGain();
         env.gain.setValueAtTime(0, now);
