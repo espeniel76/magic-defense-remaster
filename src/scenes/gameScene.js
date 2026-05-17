@@ -47,6 +47,20 @@ export class GameScene extends Phaser.Scene {
     this.statusBar.setWave(1);
     this.statusBar.setGold(GAME_CONFIG.player.startGold);
 
+    // Home button (top-left of status bar)
+    const homeBtn = this.add.rectangle(50, STATUS_H / 2, 80, STATUS_H * 0.7, 0x555555)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(10);
+    this.add.text(50, STATUS_H / 2, '홈', {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: '24px',
+      color: '#ffffff',
+    }).setOrigin(0.5).setDepth(11);
+    homeBtn.on('pointerup', () => {
+      this.isGameOver = true;
+      this.scene.start('TitleScene');
+    });
+
     // Lane area
     const zoneInitial = this.zones[0];
     this.add.rectangle(0, STATUS_H, w, LANE_H, 0x3a2818).setOrigin(0);

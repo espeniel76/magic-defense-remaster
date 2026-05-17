@@ -7,10 +7,11 @@ export class StatusBarView {
     this.bg = scene.add.rectangle(x, y, width, height, 0x2a3548).setOrigin(0);
 
     const padding = 24;
+    const leftOffset = 110; // leaves room for home button in top-left
     const fontSize = '28px';
     const style = { fontFamily: GAME_CONFIG.font.family, fontSize, color: '#ffffff' };
 
-    this.hpText = scene.add.text(x + padding, y + height / 2, 'HP 0', style).setOrigin(0, 0.5);
+    this.hpText = scene.add.text(x + leftOffset, y + height / 2, 'HP 0', style).setOrigin(0, 0.5);
     this.waveText = scene.add.text(x + width / 2, y + height / 2, '웨이브 1', style).setOrigin(0.5);
     this.goldText = scene.add.text(x + width - padding, y + height / 2, 'G 0', style).setOrigin(1, 0.5);
   }
