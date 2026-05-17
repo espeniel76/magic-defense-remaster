@@ -13,7 +13,7 @@ export const GAME_CONFIG = {
   player: {
     startHp: 20,
     startGold: 100,
-    goldPerSecond: 2,
+    goldPerSecond: 10,
     goldPerKill: 1,
   },
   summon: {
@@ -55,5 +55,8 @@ export const GAME_CONFIG = {
   },
   save: {
     storageKey: 'magicDefense.bestWave',
+  },
+  font: {
+    family: '"Noto Sans KR", system-ui, sans-serif',
   },
 };

@@ -1,12 +1,14 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
+const MAGE_LABELS = { FIRE: '불', ICE: '얼', LIGHTNING: '전', EARTH: '땅' };
+
 export class BoardView {
   constructor(scene, x, y, width, height, board) {
     this.scene = scene;
     this.board = board;
     this.area = { x, y, width, height };
-    this.cells = []; // [col][row] = { rect, mageSprite|null }
+    this.cells = []; // [col][row] = { rect, mageShape|null, mageText|null, levelText|null }
     this.cellSize = Math.floor(Math.min(width / board.cols, height / board.rows) * 0.9);
     this.gap = 8;
     const totalW = board.cols * this.cellSize + (board.cols - 1) * this.gap;
@@ -20,7 +22,7 @@ export class BoardView {
         const cx = this.originX + c * (this.cellSize + this.gap) + this.cellSize / 2;
         const cy = this.originY + r * (this.cellSize + this.gap) + this.cellSize / 2;
         const rect = scene.add.rectangle(cx, cy, this.cellSize, this.cellSize, 0x2d4565).setStrokeStyle(2, 0x3a5d8f);
-        this.cells[c][r] = { rect, x: cx, y: cy, mageText: null };
+        this.cells[c][r] = { rect, x: cx, y: cy, mageShape: null, mageText: null, levelText: null };
       }
     }
   }
@@ -36,18 +38,30 @@ export class BoardView {
   _refreshCell(c, r) {
     const cell = this.cells[c][r];
     const mage = this.board.getMageAt(c, r);
+    if (cell.mageShape) { cell.mageShape.destroy(); cell.mageShape = null; }
     if (cell.mageText) { cell.mageText.destroy(); cell.mageText = null; }
     if (cell.levelText) { cell.levelText.destroy(); cell.levelText = null; }
     if (!mage) return;
-    const text = this.scene.add.text(cell.x, cell.y, mage.config.emoji, {
-      fontSize: `${Math.floor(this.cellSize * 0.6)}px`,
+
+    const colorHex = parseInt(mage.config.color.replace('#', ''), 16);
+    const shape = this.scene.add.circle(cell.x, cell.y, this.cellSize * 0.4, colorHex);
+    shape.setStrokeStyle(2, 0xffffff);
+    shape.setInteractive({ draggable: true });
+    shape.setData('col', c);
+    shape.setData('row', r);
+    this.scene.input.setDraggable(shape);
+    cell.mageShape = shape;
+
+    const label = MAGE_LABELS[mage.classId] ?? '?';
+    cell.mageText = this.scene.add.text(cell.x, cell.y, label, {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: `${Math.floor(this.cellSize * 0.38)}px`,
+      fontStyle: 'bold',
+      color: '#ffffff',
     }).setOrigin(0.5);
-    text.setInteractive({ draggable: true });
-    text.setData('col', c);
-    text.setData('row', r);
-    this.scene.input.setDraggable(text);
-    cell.mageText = text;
+
     cell.levelText = this.scene.add.text(cell.x + this.cellSize / 2 - 4, cell.y + this.cellSize / 2 - 4, `L${mage.level}`, {
+      fontFamily: GAME_CONFIG.font.family,
       fontSize: `${Math.floor(this.cellSize * 0.22)}px`,
       color: '#ffffff',
       backgroundColor: '#000000',

@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
+const ENEMY_COLORS = { GOBLIN: 0x2ecc71, SKELETON: 0xbdc3c7 };
+
 export class LaneView {
   constructor(scene, x, y, width, height, lane) {
     this.scene = scene;
@@ -8,7 +10,7 @@ export class LaneView {
     this.area = { x, y, width, height };
     this.laneCount = lane.laneCount;
     this.laneWidth = width / this.laneCount;
-    this.enemySprites = new Map(); // enemy -> Phaser.Text
+    this.enemySprites = new Map(); // enemy -> Phaser.GameObjects.Arc
 
     // Draw lane backgrounds
     for (let i = 0; i < this.laneCount; i++) {
@@ -39,9 +41,8 @@ export class LaneView {
       const { x, y } = this.laneToWorld(enemy.lane, enemy.position);
       let sprite = this.enemySprites.get(enemy);
       if (!sprite) {
-        sprite = this.scene.add.text(x, y, enemy.config.emoji, {
-          fontSize: '36px',
-        }).setOrigin(0.5);
+        sprite = this.scene.add.circle(x, y, 14, ENEMY_COLORS[enemy.typeId] ?? 0x888888);
+        sprite.setStrokeStyle(2, 0x000000);
         this.enemySprites.set(enemy, sprite);
       } else {
         sprite.x = x;

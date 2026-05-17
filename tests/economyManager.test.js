@@ -9,10 +9,10 @@ describe('EconomyManager', () => {
 
   it('accumulates gold over time', () => {
     const em = new EconomyManager();
-    em.update(1000); // +2
-    expect(em.getGold()).toBe(102);
-    em.update(500); // +1 (cumulative)
-    expect(em.getGold()).toBe(103);
+    em.update(1000); // +10
+    expect(em.getGold()).toBe(110);
+    em.update(500); // +5 (cumulative)
+    expect(em.getGold()).toBe(115);
   });
 
   it('summon cost starts at 50 and increments by 5 each summon', () => {
