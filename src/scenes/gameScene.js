@@ -86,8 +86,14 @@ export class GameScene extends Phaser.Scene {
         this.board.moveMage(fromCol, fromRow, target.col, target.row);
       } else {
         const merge = this.board.tryMerge(fromCol, fromRow, target.col, target.row);
-        if (!merge.ok) {
-          // refresh will snap back
+        if (merge.ok) {
+          // brief scale pulse on target cell
+          const center = this.boardView.getCellCenter(target.col, target.row);
+          const pulse = this.add.circle(center.x, center.y, 50, 0xffd700, 0.6);
+          this.tweens.add({
+            targets: pulse, alpha: 0, scale: 2, duration: 300,
+            onComplete: () => pulse.destroy(),
+          });
         }
       }
       this.boardView.refreshAll();
