@@ -24,6 +24,8 @@ export class GameScene extends Phaser.Scene {
   create() {
     this.isGameOver = false;
     this.currentZoneIndex = 0;
+    this.zones = this.mode === 'hard' ? GAME_CONFIG.zonesHard : GAME_CONFIG.zones;
+    this.hpMultiplier = this.mode === 'hard' ? GAME_CONFIG.hardMode.enemyHpMultiplier : 1;
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -62,8 +64,6 @@ export class GameScene extends Phaser.Scene {
 
     this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
-    this.zones = this.mode === 'hard' ? GAME_CONFIG.zonesHard : GAME_CONFIG.zones;
-    this.hpMultiplier = this.mode === 'hard' ? GAME_CONFIG.hardMode.enemyHpMultiplier : 1;
     this.waveManager = new WaveManager(this.mode === 'hard');
     this.waveManager.start();
     this.hp = GAME_CONFIG.player.startHp;
