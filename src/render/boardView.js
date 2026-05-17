@@ -49,25 +49,23 @@ export class BoardView {
 
     const bodyColor = hexToInt(mage.config.color);
     const hatColor = hexToInt(mage.config.hatColor ?? mage.config.color);
-    const size = this.cellSize * 0.4; // body radius
+    const size = this.cellSize * 0.4;
 
     const container = this.scene.add.container(cell.x, cell.y);
 
-    // Body circle
+    // Body circle (slightly below container center to leave room for hat)
     const body = this.scene.add.circle(0, size * 0.15, size, bodyColor);
     body.setStrokeStyle(2, 0xffffff);
 
-    // Hat (triangle) on top of body
-    const hatBase = size * 1.05;
-    const hatTopY = -size * 1.55;
-    const hatBottomY = -size * 0.55;
-    const hat = this.scene.add.triangle(
-      0, 0,
-      0, hatTopY,
-      -hatBase / 2, hatBottomY,
-      hatBase / 2, hatBottomY,
-      hatColor,
-    );
+    // Hat drawn with Graphics (no auto-centering)
+    const hat = this.scene.add.graphics();
+    hat.fillStyle(hatColor, 1);
+    hat.beginPath();
+    hat.moveTo(0, -size * 1.5);              // top point
+    hat.lineTo(-size * 0.6, -size * 0.7);    // bottom-left
+    hat.lineTo(size * 0.6, -size * 0.7);     // bottom-right
+    hat.closePath();
+    hat.fillPath();
 
     // Eyes
     const eyeRadius = size * 0.18;
@@ -92,7 +90,6 @@ export class BoardView {
 
     cell.container = container;
 
-    // Level badge (small text in corner)
     cell.levelText = this.scene.add.text(
       cell.x + this.cellSize / 2 - 4,
       cell.y + this.cellSize / 2 - 4,

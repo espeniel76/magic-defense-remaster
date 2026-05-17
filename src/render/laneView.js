@@ -29,42 +29,40 @@ export class LaneView {
 
   _buildEnemySprite(enemy) {
     const color = hexToInt(enemy.config.color ?? '#888888');
-    const r = 16; // body radius
+    const r = 24; // body radius (was 16)
 
     const container = this.scene.add.container(0, 0);
+
+    // Horns drawn with Graphics — precise absolute coords
+    const horns = this.scene.add.graphics();
+    horns.fillStyle(color, 1);
+    // Left horn
+    horns.beginPath();
+    horns.moveTo(-r * 0.45, -r * 1.4);   // tip
+    horns.lineTo(-r * 0.75, -r * 0.6);   // bottom-left
+    horns.lineTo(-r * 0.15, -r * 0.6);   // bottom-right
+    horns.closePath();
+    horns.fillPath();
+    // Right horn
+    horns.beginPath();
+    horns.moveTo(r * 0.45, -r * 1.4);    // tip
+    horns.lineTo(r * 0.15, -r * 0.6);    // bottom-left
+    horns.lineTo(r * 0.75, -r * 0.6);    // bottom-right
+    horns.closePath();
+    horns.fillPath();
+
+    // Body
     const body = this.scene.add.circle(0, 0, r, color);
     body.setStrokeStyle(2, 0x000000);
 
-    // Two ear triangles
-    const earBase = r * 0.6;
-    const earHeight = r * 0.8;
-    const earY = -r * 0.9;
-    const earOffsetX = r * 0.55;
-    const earL = this.scene.add.triangle(
-      -earOffsetX, 0,
-      0, -earHeight,
-      -earBase / 2, 0,
-      earBase / 2, 0,
-      color
-    );
-    earL.y = earY;
-    const earR = this.scene.add.triangle(
-      earOffsetX, 0,
-      0, -earHeight,
-      -earBase / 2, 0,
-      earBase / 2, 0,
-      color
-    );
-    earR.y = earY;
-
-    // Two eyes
+    // Eyes
     const eyeR = r * 0.22;
     const eyeY = r * 0.1;
     const eyeOffsetX = r * 0.4;
     const eyeL = this.scene.add.circle(-eyeOffsetX, eyeY, eyeR, 0xffffff);
     const eyeRight = this.scene.add.circle(eyeOffsetX, eyeY, eyeR, 0xffffff);
 
-    container.add([earL, earR, body, eyeL, eyeRight]);
+    container.add([horns, body, eyeL, eyeRight]);
     return container;
   }
 
