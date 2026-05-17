@@ -102,8 +102,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   handleSummon() {
-    if (!this.economy.canSummon()) return;
-    if (this.board.getEmptyCells().length === 0) return;
+    if (!this.economy.canSummon() || this.board.getEmptyCells().length === 0) {
+      // shake the summon button
+      const btn = this.actionBar.summonBg;
+      const originalX = btn.x;
+      this.tweens.add({
+        targets: btn, x: originalX + 6, duration: 50, yoyo: true, repeat: 3,
+        onComplete: () => { btn.x = originalX; },
+      });
+      return;
+    }
     const ids = ['FIRE', 'ICE', 'LIGHTNING', 'EARTH'];
     const pick = ids[Math.floor(Math.random() * ids.length)];
     const mage = new Mage(pick, 1);
