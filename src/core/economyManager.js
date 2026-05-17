@@ -1,10 +1,11 @@
 import { GAME_CONFIG } from '../config/gameConfig.js';
 
 export class EconomyManager {
-  constructor() {
+  constructor(goldMultiplier = 1) {
     this.gold = GAME_CONFIG.player.startGold;
     this.goldAccumulator = 0;
     this.summonCount = 0;
+    this.goldMultiplier = goldMultiplier;
   }
 
   getGold() {
@@ -28,11 +29,11 @@ export class EconomyManager {
   }
 
   rewardKill() {
-    this.gold += GAME_CONFIG.player.goldPerKill;
+    this.gold += Math.ceil(GAME_CONFIG.player.goldPerKill * this.goldMultiplier);
   }
 
   update(dtMs) {
-    this.goldAccumulator += (GAME_CONFIG.player.goldPerSecond * dtMs) / 1000;
+    this.goldAccumulator += (GAME_CONFIG.player.goldPerSecond * this.goldMultiplier * dtMs) / 1000;
     const whole = Math.floor(this.goldAccumulator);
     if (whole > 0) {
       this.gold += whole;

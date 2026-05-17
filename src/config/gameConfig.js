@@ -74,6 +74,18 @@ export const GAME_CONFIG = {
     enemyHpMultiplier: 1.5,
     eliteSpawnRatio: 0.2,
   },
+  zonesHell: [
+    { name: '신비의숲',    color: 0x2D0040 },
+    { name: '얼음설원',    color: 0x2D0040 },
+    { name: '화산천지',    color: 0x2D0040 },
+    { name: '망각의 바다', color: 0x2D0040 },
+    { name: '결전의 성',   color: 0x2D0040 },
+  ],
+  hellMode: {
+    enemyHpMultiplier: 2,
+    goldMultiplier: 1.5,
+    eliteSpawnRatio: 0.2,
+  },
   save: {
     storageKey: 'magicDefense.bestWave',
   },

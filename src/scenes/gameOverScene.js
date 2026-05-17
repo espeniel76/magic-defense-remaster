@@ -28,7 +28,9 @@ export class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     if (this.isVictory) {
-      const modeLabel = this.mode === 'hard' ? '어려움' : '일반';
+      const modeLabel = this.mode === 'hell' ? '지옥'
+                      : this.mode === 'hard' ? '어려움'
+                      : '일반';
       this.add.text(w / 2, h * 0.45, `${modeLabel} 모드 클리어!`, {
         fontFamily: GAME_CONFIG.font.family,
         fontSize: '36px',

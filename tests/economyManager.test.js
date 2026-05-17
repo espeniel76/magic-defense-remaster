@@ -46,4 +46,12 @@ describe('EconomyManager', () => {
     em.rewardKill();
     expect(em.getGold()).toBe(101);
   });
+
+  it('applies goldMultiplier to both income and kill rewards', () => {
+    const em = new EconomyManager(2);
+    em.update(1000); // +10 base × 2 = +20
+    expect(em.getGold()).toBe(120);
+    em.rewardKill(); // +1 base × 2 = +2
+    expect(em.getGold()).toBe(122);
+  });
 });

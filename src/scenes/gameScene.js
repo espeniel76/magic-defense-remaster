@@ -24,8 +24,16 @@ export class GameScene extends Phaser.Scene {
   create() {
     this.isGameOver = false;
     this.currentZoneIndex = 0;
-    this.zones = this.mode === 'hard' ? GAME_CONFIG.zonesHard : GAME_CONFIG.zones;
-    this.hpMultiplier = this.mode === 'hard' ? GAME_CONFIG.hardMode.enemyHpMultiplier : 1;
+    if (this.mode === 'hell') {
+      this.zones = GAME_CONFIG.zonesHell;
+      this.hpMultiplier = GAME_CONFIG.hellMode.enemyHpMultiplier;
+    } else if (this.mode === 'hard') {
+      this.zones = GAME_CONFIG.zonesHard;
+      this.hpMultiplier = GAME_CONFIG.hardMode.enemyHpMultiplier;
+    } else {
+      this.zones = GAME_CONFIG.zones;
+      this.hpMultiplier = 1;
+    }
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -64,7 +72,7 @@ export class GameScene extends Phaser.Scene {
 
     this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
-    this.waveManager = new WaveManager(this.mode === 'hard');
+    this.waveManager = new WaveManager(this.mode !== 'normal');
     this.waveManager.start();
     this.hp = GAME_CONFIG.player.startHp;
     this.statusBar.setHp(this.hp);
@@ -72,7 +80,8 @@ export class GameScene extends Phaser.Scene {
 
     // Action bar
     this.actionBar = new ActionBarView(this, 0, STATUS_H + LANE_H + BOARD_H, w, ACTION_H);
-    this.economy = new EconomyManager();
+    const goldMultiplier = this.mode === 'hell' ? GAME_CONFIG.hellMode.goldMultiplier : 1;
+    this.economy = new EconomyManager(goldMultiplier);
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonCost(this.economy.getSummonCost());
 
