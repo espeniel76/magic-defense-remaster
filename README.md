@@ -1,3 +1,5 @@
+# 매직디펜스
+
 나는 지금부터 게임을 만들거야.
 
 1. 장르: 디펜스게임
@@ -13,50 +15,76 @@
 
 ---
 
-## 실행 방법 (프로토타입)
+**배포 URL**: <https://static.gochon-isahoe.kr/magic-defense/index.html>
 
-### 사전 설치
-- Node.js 20+ (https://nodejs.org)
+## 새 노트북 셋업
 
-### 설치
+### 1. 필수 프로그램 설치
+
+- [Git](https://git-scm.com/download/win)
+- [Node.js](https://nodejs.org/) (LTS)
+- [Python](https://www.python.org/downloads/) (3.10+)
+
+### 2. 저장소 클론
+
+```powershell
+cd C:\Users\<사용자명>\git
+git clone https://github.com/espeniel76/magic-defense.git 매직디펜스
+cd 매직디펜스
 ```
+
+### 3. 의존성 설치
+
+```powershell
 npm install
+pip install boto3
 ```
 
-### 개발 서버 실행
+### 4. `.env` 파일 작성
+
+`.env`는 보안상 git에 올라가 있지 않습니다. 기존 노트북의 `.env`를 USB/카톡으로 가져와서 프로젝트 루트(`C:\...\매직디펜스\.env`)에 그대로 붙여넣기.
+
+파일 형식:
+
+```text
+AWS_REGION=ap-northeast-2
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_BUCKET_NAME=...
+AWS_S3_BASE_URL=https://static.gochon-isahoe.kr
 ```
+
+### 5. 동작 확인
+
+```powershell
 npm run dev
 ```
 
-브라우저로 표시된 `Local` URL 접속. 같은 Wi-Fi의 폰에선 `Network` URL로 접속.
+브라우저에서 <http://localhost:5173> 접속.
 
-### 테스트
-```
-npm run test
-```
+## 배포
 
-### 빌드 (정적 파일 생성)
-```
-npm run build
+```powershell
+npx vite build --base=/magic-defense/
+python upload_s3.py magic-defense
 ```
 
-`dist/` 폴더에 결과물.
+자동으로 S3 업로드 + CloudFront 캐시 무효화 (30~60초 뒤 전세계 반영).
 
-## PWA 설치 (앱처럼 사용하기)
+## 테스트
 
-폰에 설치하면 인터넷 없이도 혼자서 실행됩니다.
-
-### 1단계 (한 번만)
-PC에서:
-```
-npm run build
-npm run preview
+```powershell
+npm test
 ```
 
-표시되는 `Network: http://192.168.x.x:4173/` URL을 폰 크롬으로 접속.
+## 주요 폴더
 
-### 2단계 (한 번만, 폰에서)
-크롬 우측 상단 메뉴 (⋮) → "앱 설치" 또는 "홈 화면에 추가" 탭.
+- `src/scenes/` — 타이틀/게임/게임오버 등 화면
+- `src/core/` — 게임 로직 (마법사, 적, 웨이브, 경제 등)
+- `src/render/` — 화면 렌더링 (보드, 레인, 액션바)
+- `src/config/gameConfig.js` — 모든 게임 밸런스 수치
+- `upload_s3.py` — 빌드 결과 S3 업로드 + CF 캐시 무효화
 
-### 끝
-폰 홈 화면에 앱 아이콘이 생깁니다. 탭하면 인터넷·PC 없이도 실행돼요.
+## PWA 설치 (앱처럼 사용)
+
+폰 크롬으로 위 배포 URL 접속 → 우측 상단 ⋮ → "앱 설치" / "홈 화면에 추가".
