@@ -13,8 +13,15 @@ export class Mage {
   }
 
   getDamage() {
-    const { levelDamageMultiplier } = GAME_CONFIG.mage;
-    return this.config.damage * Math.pow(levelDamageMultiplier, this.level - 1);
+    const { levelDamageStep, mythicDamageStep, transcendentDamageStep } = GAME_CONFIG.mage;
+    let mult = 1;
+    for (let lv = 2; lv <= this.level; lv++) {
+      let step = levelDamageStep;
+      if (lv === 4) step = mythicDamageStep;
+      else if (lv === 5) step = transcendentDamageStep;
+      mult *= step;
+    }
+    return this.config.damage * mult;
   }
 
   getAttackIntervalMs() {

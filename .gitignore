@@ -7,3 +7,8 @@ dist/
 .env
 .env.local
 .env.*.local
+.playwright-mcp/
+*.png
+!pwa-192.png
+!pwa-512.png
+!apple-touch-icon.png

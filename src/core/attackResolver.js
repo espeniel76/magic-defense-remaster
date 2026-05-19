@@ -18,12 +18,26 @@ export class AttackResolver {
       mage.lastAttackAt = this.elapsedMs;
       const damage = mage.getDamage();
       target.takeDamage(damage);
-      const evt = { mageCol: col, primaryTarget: target, secondaryTargets: [], type: mage.config.effect };
+      const evt = { mageCol: col, mage, primaryTarget: target, primaryDamage: damage, secondaryTargets: [], type: mage.config.effect };
       // Note on slow semantics: GAME_CONFIG.classes.ICE.slowFactor = 0.3 means
       // "slow the enemy by 30%", so the resulting speed multiplier is (1 - 0.3) = 0.7.
       // Enemy.applySlow(factor, durationMs) interprets factor as the speed multiplier itself.
       switch (mage.config.effect) {
         case 'single':
+          break;
+        case 'knockback': {
+          const kb = mage.level >= 4 && mage.config.mythicKnockback != null
+            ? mage.config.mythicKnockback
+            : mage.config.knockback;
+          target.position = Math.max(0, target.position - kb);
+          break;
+        }
+        case 'poison':
+          target.applyPoison(
+            damage * mage.config.poisonRatio,
+            mage.config.poisonDurationMs,
+            mage.config.poisonTickMs,
+          );
           break;
         case 'slow':
           target.applySlow(1 - mage.config.slowFactor, mage.config.slowDuration);
@@ -35,7 +49,7 @@ export class AttackResolver {
           const chained = others.slice(0, mage.config.chainCount);
           for (const e of chained) {
             e.takeDamage(chainDmg);
-            evt.secondaryTargets.push(e);
+            evt.secondaryTargets.push({ enemy: e, damage: chainDmg });
           }
           break;
         }
@@ -46,7 +60,7 @@ export class AttackResolver {
             if (this._distLaneUnits(target, e) <= radius) {
               e.takeDamage(damage);
               e.applyStun(mage.config.stunDuration);
-              evt.secondaryTargets.push(e);
+              evt.secondaryTargets.push({ enemy: e, damage });
             }
           }
           target.applyStun(mage.config.stunDuration);

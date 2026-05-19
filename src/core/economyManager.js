@@ -32,6 +32,16 @@ export class EconomyManager {
     this.gold += Math.ceil(GAME_CONFIG.player.goldPerKill * this.goldMultiplier);
   }
 
+  getSellValue(level) {
+    return GAME_CONFIG.sell.byLevel[level] ?? 0;
+  }
+
+  sellMage(level) {
+    const value = this.getSellValue(level);
+    this.gold += value;
+    return value;
+  }
+
   update(dtMs) {
     this.goldAccumulator += (GAME_CONFIG.player.goldPerSecond * this.goldMultiplier * dtMs) / 1000;
     const whole = Math.floor(this.goldAccumulator);

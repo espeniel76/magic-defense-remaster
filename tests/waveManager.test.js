@@ -18,7 +18,7 @@ describe('WaveManager', () => {
     expect(spawn.spawns[0].lane).toBeLessThan(4);
   });
 
-  it('wave 1 spawns 10 enemies total then enters intermission', () => {
+  it('wave 1 spawns baseCount enemies total then enters intermission', () => {
     const wm = new WaveManager();
     wm.start();
     let total = 0;
@@ -27,11 +27,11 @@ describe('WaveManager', () => {
       total += r.spawns.length;
       if (r.waveEnded) break;
     }
-    expect(total).toBe(10);
+    expect(total).toBe(15);
     expect(wm.isInIntermission()).toBe(true);
   });
 
-  it('after intermission moves to wave 2 with +2 spawns', () => {
+  it('after intermission moves to wave 2 with countIncrement extra spawns', () => {
     const wm = new WaveManager();
     wm.start();
     for (let i = 0; i < 30 && !wm.isInIntermission(); i++) wm.update(2000);
@@ -45,7 +45,7 @@ describe('WaveManager', () => {
       total += r.spawns.length;
       if (r.waveEnded) break;
     }
-    expect(total).toBe(12);
+    expect(total).toBe(18);
   });
 
   it('skeleton ratio is 0 before wave 5', () => {
@@ -119,7 +119,7 @@ describe('WaveManager', () => {
       }
       if (r.waveEnded) break;
     }
-    expect(total).toBe(30); // 10 + (11-1)*2
+    expect(total).toBe(45); // 15 + (11-1)*3
     expect(bossCount).toBe(0);
   });
 

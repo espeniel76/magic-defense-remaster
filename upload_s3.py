@@ -1,8 +1,10 @@
-"""upload_s3.py — dist/ 빌드 결과를 S3에 업로드
+"""upload_s3.py — dist/ 빌드 결과를 S3에 업로드 + CloudFront 캐시 무효화
 사용법: python upload_s3.py [prefix]
 prefix 미지정 시 'magic-defense' 사용
 """
-import boto3, os, mimetypes, sys
+import boto3, os, mimetypes, sys, time
+
+CLOUDFRONT_DIST_ID = 'E37OA58O8GG9O6'
 
 try:
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -53,4 +55,16 @@ for root, dirs, files in os.walk(DIST):
         print(f'  ok  {s3_key}')
 
 print(f'\n=== {uploaded}개 파일 업로드 완료 ===')
-print(f'{BASE_URL}/{PUBLIC_PATH}/')
+
+# CloudFront 캐시 무효화 — 안 하면 엣지가 옛 버전을 계속 서빙함
+print('CloudFront 캐시 무효화 중...')
+cf = boto3.client('cloudfront', region_name='us-east-1')
+inv = cf.create_invalidation(
+    DistributionId=CLOUDFRONT_DIST_ID,
+    InvalidationBatch={
+        'Paths': {'Quantity': 1, 'Items': [f'/{PUBLIC_PATH}/*']},
+        'CallerReference': f'{PUBLIC_PATH}-{int(time.time())}',
+    },
+)
+print(f'  invalidation: {inv["Invalidation"]["Id"]} (보통 30~60초)')
+print(f'\n{BASE_URL}/{PUBLIC_PATH}/')

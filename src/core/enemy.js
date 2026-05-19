@@ -18,6 +18,10 @@ export class Enemy {
     this.slowUntil = 0;
     this.stunUntil = 0;
     this.elapsedMs = 0;
+    this.poisonDmgPerTick = 0;
+    this.poisonUntil = 0;
+    this.poisonNextTickAt = 0;
+    this.poisonTickMs = 0;
   }
 
   isDead() {
@@ -45,6 +49,16 @@ export class Enemy {
     }
   }
 
+  applyPoison(dmgPerTick, durationMs, tickMs) {
+    if (dmgPerTick > this.poisonDmgPerTick) this.poisonDmgPerTick = dmgPerTick;
+    const expireAt = this.elapsedMs + durationMs;
+    if (expireAt > this.poisonUntil) this.poisonUntil = expireAt;
+    this.poisonTickMs = tickMs;
+    if (this.poisonNextTickAt <= this.elapsedMs) {
+      this.poisonNextTickAt = this.elapsedMs + tickMs;
+    }
+  }
+
   getCurrentSpeed() {
     if (this.elapsedMs < this.stunUntil) return 0;
     const slow = this.elapsedMs < this.slowUntil ? this.slowFactor : 1;
@@ -53,7 +67,6 @@ export class Enemy {
 
   update(dtMs) {
     this.elapsedMs += dtMs;
-    // Reset slow if expired
     if (this.elapsedMs >= this.slowUntil) {
       this.slowFactor = 1;
     }
@@ -61,5 +74,18 @@ export class Enemy {
     const moveDistance = (speed * GAME_CONFIG.lane.enemyMoveDistancePerSecond * dtMs) / 1000;
     this.position += moveDistance / GAME_CONFIG.lane.laneLengthPixels;
     if (this.position > 1) this.position = 1;
+
+    const ticks = [];
+    if (this.poisonDmgPerTick > 0) {
+      while (this.elapsedMs >= this.poisonNextTickAt && this.poisonNextTickAt <= this.poisonUntil) {
+        this.hp -= this.poisonDmgPerTick;
+        ticks.push({ damage: this.poisonDmgPerTick });
+        this.poisonNextTickAt += this.poisonTickMs;
+      }
+      if (this.elapsedMs >= this.poisonUntil) {
+        this.poisonDmgPerTick = 0;
+      }
+    }
+    return ticks;
   }
 }

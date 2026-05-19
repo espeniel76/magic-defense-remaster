@@ -15,30 +15,30 @@ describe('EconomyManager', () => {
     expect(em.getGold()).toBe(115);
   });
 
-  it('summon cost starts at 50 and increments by 5 each summon', () => {
+  it('summon cost starts at 50 and increments by 2 each summon', () => {
     const em = new EconomyManager();
     expect(em.getSummonCost()).toBe(50);
     em.spendSummon();                  // gold: 100→50, count=1
-    expect(em.getSummonCost()).toBe(55);
-    em.update(3000);                   // +6 gold → 56, enough for cost 55
-    em.spendSummon();                  // gold: 56→1, count=2
-    expect(em.getSummonCost()).toBe(60);
+    expect(em.getSummonCost()).toBe(52);
+    em.update(200);                    // +2 gold → 52, exactly meets cost
+    em.spendSummon();                  // gold: 52→0, count=2
+    expect(em.getSummonCost()).toBe(54);
   });
 
   it('can summon only when gold >= cost', () => {
     const em = new EconomyManager();
     expect(em.canSummon()).toBe(true);
-    em.spendSummon();
+    em.spendSummon();                  // gold: 100→50
     expect(em.getGold()).toBe(50);
-    expect(em.canSummon()).toBe(false); // need 55, have 50
+    expect(em.canSummon()).toBe(false); // need 52, have 50
   });
 
   it('refuses spendSummon if cannot afford', () => {
     const em = new EconomyManager();
-    em.spendSummon(); // gold=50, cost=55
+    em.spendSummon();                  // gold=50, cost=52
     expect(em.spendSummon()).toBe(false);
     expect(em.getGold()).toBe(50);
-    expect(em.getSummonCost()).toBe(55);
+    expect(em.getSummonCost()).toBe(52);
   });
 
   it('rewards kill', () => {

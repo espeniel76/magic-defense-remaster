@@ -18,11 +18,16 @@ export const GAME_CONFIG = {
   },
   summon: {
     baseCost: 50,
-    costIncrement: 5,
+    costIncrement: 2,
+  },
+  sell: {
+    byLevel: { 1: 30, 2: 60, 3: 120, 4: 300, 5: 600 },
   },
   mage: {
     maxLevel: 5,
-    levelDamageMultiplier: 2,
+    levelDamageStep: 2,            // ×2 per level up
+    mythicDamageStep: 5,           // ×5 when reaching L4 (mythic)
+    transcendentDamageStep: 3,     // ×3 when reaching L5 (transcendent)
     levelAttackSpeedMultiplier: 1.1,
   },
   classes: {
@@ -30,18 +35,20 @@ export const GAME_CONFIG = {
     ICE:       { id: 'ICE',       emoji: '❄️',  color: '#5DADE2', hatColor: '#2E5984', damage: 5,  atkPerSec: 1.5,  effect: 'slow',  slowFactor: 0.3, slowDuration: 2000 },
     LIGHTNING: { id: 'LIGHTNING', emoji: '⚡',  color: '#FFD93D', hatColor: '#F39C12', damage: 4,  atkPerSec: 1.2,  effect: 'chain', chainCount: 2, chainDamageRatio: 0.5 },
     EARTH:     { id: 'EARTH',     emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
+    POISON:    { id: 'POISON',    emoji: '☠️',  color: '#7B5DE2', hatColor: '#D597E8', damage: 6,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.5, poisonTickMs: 1000, poisonDurationMs: 3000 },
+    WIND:      { id: 'WIND',      emoji: '🌪️',  color: '#E0E0E0', hatColor: '#A8A8A8', damage: 3,  atkPerSec: 1.6,  effect: 'knockback', knockback: 0.15, mythicKnockback: 0.30 },
   },
   enemies: {
-    GOBLIN:   { id: 'GOBLIN',   displayName: '일반',   emoji: '👹', color: '#E74C3C', hp: 20,  speed: 1.0, baseDamage: 1 },
-    SKELETON: { id: 'SKELETON', displayName: '빠른',   emoji: '💀', color: '#9B59B6', hp: 10,  speed: 2.0, baseDamage: 1 },
-    BOSS:     { id: 'BOSS',     displayName: '보스',   emoji: '👑', color: '#4A0E0E', hp: 400, speed: 0.4, baseDamage: 5 },
-    ELITE:    { id: 'ELITE',    displayName: '정예',   emoji: '⭐', color: '#F1C40F', hp: 40,  speed: 1.0, baseDamage: 2 },
-    TITAN:    { id: 'TITAN',    displayName: '거대',   emoji: '🔷', color: '#2196F3', hp: 60,  speed: 0.9, baseDamage: 3 },
+    GOBLIN:   { id: 'GOBLIN',   displayName: '일반',   emoji: '👹', color: '#E74C3C', hp: 10,  speed: 0.33, baseDamage: 1 },
+    SKELETON: { id: 'SKELETON', displayName: '빠른',   emoji: '💀', color: '#9B59B6', hp: 5,   speed: 0.67, baseDamage: 1 },
+    BOSS:     { id: 'BOSS',     displayName: '보스',   emoji: '👑', color: '#4A0E0E', hp: 200, speed: 0.13, baseDamage: 5 },
+    ELITE:    { id: 'ELITE',    displayName: '정예',   emoji: '⭐', color: '#F1C40F', hp: 20,  speed: 0.33, baseDamage: 2 },
+    TITAN:    { id: 'TITAN',    displayName: '거대',   emoji: '🔷', color: '#2196F3', hp: 30,  speed: 0.30, baseDamage: 3 },
   },
   wave: {
-    baseCount: 10,
-    countIncrement: 2,
-    baseSpawnInterval: 1500,
+    baseCount: 15,
+    countIncrement: 3,
+    baseSpawnInterval: 1100,
     spawnIntervalDecrement: 50,
     minSpawnInterval: 400,
     intermissionMs: 5000,

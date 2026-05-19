@@ -44,10 +44,12 @@ export class EnemyLane {
   update(dtMs) {
     const reached = [];
     const killed = [];
+    const ticks = [];
     for (let i = 0; i < this.laneCount; i++) {
       const remaining = [];
       for (const e of this.lanes[i]) {
-        e.update(dtMs);
+        const enemyTicks = e.update(dtMs);
+        for (const t of enemyTicks) ticks.push({ enemy: e, damage: t.damage });
         if (e.isDead()) {
           killed.push(e);
           continue;
@@ -60,6 +62,6 @@ export class EnemyLane {
       }
       this.lanes[i] = remaining;
     }
-    return { reached, killed };
+    return { reached, killed, ticks };
   }
 }

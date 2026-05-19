@@ -5,6 +5,28 @@ function hexToInt(hex) {
   return parseInt(hex.replace('#', ''), 16);
 }
 
+function fillCubicBezierShape(g, segments) {
+  g.beginPath();
+  let first = true;
+  for (const seg of segments) {
+    const [p0x, p0y, c1x, c1y, c2x, c2y, p1x, p1y] = seg;
+    if (first) {
+      g.moveTo(p0x, p0y);
+      first = false;
+    }
+    const curve = new Phaser.Curves.CubicBezier(
+      new Phaser.Math.Vector2(p0x, p0y),
+      new Phaser.Math.Vector2(c1x, c1y),
+      new Phaser.Math.Vector2(c2x, c2y),
+      new Phaser.Math.Vector2(p1x, p1y),
+    );
+    const points = curve.getPoints(16);
+    for (const pt of points) g.lineTo(pt.x, pt.y);
+  }
+  g.closePath();
+  g.fillPath();
+}
+
 export function buildEnemyDisplaySprite(scene, typeId, wave = 1) {
   const cfg = GAME_CONFIG.enemies[typeId];
   if (!cfg) throw new Error(`Unknown enemy type: ${typeId}`);
@@ -20,25 +42,22 @@ export function buildEnemyDisplaySprite(scene, typeId, wave = 1) {
   horns.fillStyle(color, 1);
 
   if (isBoss || isLateWave) {
-    horns.beginPath();
-    horns.moveTo(-r * 0.55, -r * 0.55);
-    horns.bezierCurveTo(-r * 0.95, -r * 1.0, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.9);
-    horns.bezierCurveTo(-r * 0.05, -r * 1.5, -r * 0.2, -r * 1.0, -r * 0.15, -r * 0.55);
-    horns.closePath();
-    horns.fillPath();
-    horns.beginPath();
-    horns.moveTo(r * 0.55, -r * 0.55);
-    horns.bezierCurveTo(r * 0.95, -r * 1.0, r * 0.6, -r * 1.6, r * 0.2, -r * 1.9);
-    horns.bezierCurveTo(r * 0.05, -r * 1.5, r * 0.2, -r * 1.0, r * 0.15, -r * 0.55);
-    horns.closePath();
-    horns.fillPath();
+    // left horn: two cubic-bezier segments forming the outer + inner curve
+    fillCubicBezierShape(horns, [
+      [-r * 0.55, -r * 0.55, -r * 0.95, -r * 1.0, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.9],
+      [-r * 0.2,  -r * 1.9,  -r * 0.05, -r * 1.5, -r * 0.2, -r * 1.0, -r * 0.15, -r * 0.55],
+    ]);
+    // right horn (mirror)
+    fillCubicBezierShape(horns, [
+      [r * 0.55, -r * 0.55, r * 0.95, -r * 1.0, r * 0.6, -r * 1.6, r * 0.2, -r * 1.9],
+      [r * 0.2,  -r * 1.9,  r * 0.05, -r * 1.5, r * 0.2, -r * 1.0, r * 0.15, -r * 0.55],
+    ]);
     if (isBoss) {
-      horns.beginPath();
-      horns.moveTo(-r * 0.2, -r * 0.55);
-      horns.bezierCurveTo(-r * 0.35, -r * 1.4, -r * 0.1, -r * 2.0, 0, -r * 2.2);
-      horns.bezierCurveTo(r * 0.1, -r * 2.0, r * 0.35, -r * 1.4, r * 0.2, -r * 0.55);
-      horns.closePath();
-      horns.fillPath();
+      // center crown spike
+      fillCubicBezierShape(horns, [
+        [-r * 0.2, -r * 0.55, -r * 0.35, -r * 1.4, -r * 0.1, -r * 2.0, 0,       -r * 2.2],
+        [0,        -r * 2.2,  r * 0.1,   -r * 2.0, r * 0.35, -r * 1.4, r * 0.2, -r * 0.55],
+      ]);
     }
   } else {
     horns.beginPath();

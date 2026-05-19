@@ -102,10 +102,17 @@ export class GameScene extends Phaser.Scene {
     this.actionBar.onSummon = () => this.handleSummon();
     this.speedMultiplier = 1;
     this.actionBar.onSpeedToggle = () => {
-      const next = { 1: 2, 2: 4, 4: 1 };
+      const next = { 1: 2, 2: 4, 4: 8, 8: 16, 16: 1 };
       this.speedMultiplier = next[this.speedMultiplier] ?? 1;
       this.actionBar.setSpeed(this.speedMultiplier);
     };
+
+    this.input.on('dragstart', (_pointer, obj) => {
+      const fromCol = obj.getData('col');
+      const fromRow = obj.getData('row');
+      const m = this.board.getMageAt(fromCol, fromRow);
+      if (m) this.actionBar.setSellPreview(this.economy.getSellValue(m.level));
+    });
 
     this.input.on('drag', (_pointer, obj, x, y) => {
       obj.x = x;
@@ -113,8 +120,35 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.input.on('dragend', (_pointer, obj) => {
+      this.actionBar.clearSellPreview();
       const fromCol = obj.getData('col');
       const fromRow = obj.getData('row');
+
+      // Drop on sell zone?
+      if (this.actionBar.isPointInSellZone(obj.x, obj.y)) {
+        const m = this.board.getMageAt(fromCol, fromRow);
+        if (m) {
+          const refund = this.economy.sellMage(m.level);
+          this.board.removeMage(fromCol, fromRow);
+          this.statusBar.setGold(this.economy.getGold());
+          // floating +Gold text near sell button
+          const sx = this.actionBar.sellArea.x;
+          const sy = this.actionBar.sellArea.y;
+          const t = this.add.text(sx, sy - 30, `+${refund}G`, {
+            fontFamily: GAME_CONFIG.font.family,
+            fontSize: '28px', fontStyle: 'bold',
+            color: '#ffd700', stroke: '#000000', strokeThickness: 4,
+          }).setOrigin(0.5).setDepth(100);
+          this.tweens.add({
+            targets: t, y: sy - 80, alpha: 0, duration: 700,
+            onComplete: () => t.destroy(),
+          });
+          this.boardView.refreshAll();
+          this.actionBar.setSummonEnabled(this.economy.canSummon() && this.board.getEmptyCells().length > 0);
+          return;
+        }
+      }
+
       const target = this.boardView.getCellAt(obj.x, obj.y);
       if (!target) {
         this.boardView.refreshAll();
@@ -130,7 +164,6 @@ export class GameScene extends Phaser.Scene {
       } else {
         const merge = this.board.tryMerge(fromCol, fromRow, target.col, target.row);
         if (merge.ok) {
-          // brief scale pulse on target cell
           const center = this.boardView.getCellCenter(target.col, target.row);
           const pulse = this.add.circle(center.x, center.y, 50, 0xffd700, 0.6);
           this.tweens.add({
@@ -155,7 +188,7 @@ export class GameScene extends Phaser.Scene {
       });
       return;
     }
-    const ids = ['FIRE', 'ICE', 'LIGHTNING', 'EARTH'];
+    const ids = ['FIRE', 'ICE', 'LIGHTNING', 'EARTH', 'POISON', 'WIND'];
     const pick = ids[Math.floor(Math.random() * ids.length)];
     const mage = new Mage(pick, 1);
     const cell = this.board.placeAtRandomEmpty(mage);
@@ -190,6 +223,10 @@ export class GameScene extends Phaser.Scene {
 
     // Enemy movement and base reach
     const laneResult = this.enemyLane.update(effectiveDt);
+    for (const tick of laneResult.ticks) {
+      const w = this.laneView.laneToWorld(tick.enemy.lane, tick.enemy.position);
+      this._showPoisonTickText(w.x, w.y, tick.damage);
+    }
     for (const reached of laneResult.reached) {
       this.hp -= reached.config.baseDamage;
       this.statusBar.setHp(Math.max(0, this.hp));
@@ -221,20 +258,81 @@ export class GameScene extends Phaser.Scene {
     const from = this.boardView.getCellCenter(fromCells[0].col, fromCells[0].row);
     if (!from) return;
     const toWorld = this.laneView.laneToWorld(atk.primaryTarget.lane, atk.primaryTarget.position);
-    const colorMap = {
-      single: 0xe74c3c, slow: 0x5dade2, chain: 0xf4d03f, aoe: 0xa0522d,
-    };
-    const color = colorMap[atk.type] ?? 0xffffff;
-    const line = this.add.line(0, 0, from.x, from.y, toWorld.x, toWorld.y, color, 0.9)
-      .setOrigin(0, 0)
-      .setLineWidth(3);
-    this.tweens.add({ targets: line, alpha: 0, duration: 200, onComplete: () => line.destroy() });
 
+    const colorHex = atk.mage?.config.color ?? '#ffffff';
+    const color = parseInt(colorHex.replace('#', ''), 16);
+    const level = atk.mage?.level ?? 1;
+    const tier = level >= 5 ? 'transcendent' : level >= 4 ? 'mythic' : 'normal';
+    const radius = tier === 'transcendent' ? 24 : tier === 'mythic' ? 18 : 9;
+
+    this._spawnProjectile(from.x, from.y, toWorld.x, toWorld.y, color, radius, () => {
+      this._showDamageText(toWorld.x, toWorld.y, atk.primaryDamage, tier);
+    });
     for (const sec of atk.secondaryTargets) {
-      const sw = this.laneView.laneToWorld(sec.lane, sec.position);
-      const l2 = this.add.line(0, 0, toWorld.x, toWorld.y, sw.x, sw.y, color, 0.7).setOrigin(0,0).setLineWidth(2);
-      this.tweens.add({ targets: l2, alpha: 0, duration: 200, onComplete: () => l2.destroy() });
+      const sw = this.laneView.laneToWorld(sec.enemy.lane, sec.enemy.position);
+      this._spawnProjectile(toWorld.x, toWorld.y, sw.x, sw.y, color, Math.max(5, Math.round(radius * 0.7)), () => {
+        this._showDamageText(sw.x, sw.y, sec.damage, tier);
+      });
     }
+  }
+
+  _spawnProjectile(x0, y0, x1, y1, color, radius, onArrive) {
+    const ball = this.add.circle(x0, y0, radius, color);
+    ball.setStrokeStyle(2, 0xffffff, 0.85);
+    this.tweens.add({
+      targets: ball,
+      x: x1, y: y1,
+      duration: 200,
+      ease: 'Quad.out',
+      onComplete: () => {
+        ball.destroy();
+        if (onArrive) onArrive();
+      },
+    });
+  }
+
+  _showPoisonTickText(x, y, damage) {
+    const text = this.add.text(x, y - 14, String(Math.round(damage)), {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: '20px',
+      fontStyle: 'bold',
+      color: '#9be38a',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(100);
+    this.tweens.add({
+      targets: text,
+      y: y - 50,
+      alpha: 0,
+      duration: 600,
+      ease: 'Quad.out',
+      onComplete: () => text.destroy(),
+    });
+  }
+
+  _showDamageText(x, y, damage, tier = 'normal') {
+    const styleByTier = {
+      transcendent: { size: '46px', color: '#ff6cff' },
+      mythic:       { size: '36px', color: '#ffd700' },
+      normal:       { size: '26px', color: '#ffffff' },
+    };
+    const s = styleByTier[tier] ?? styleByTier.normal;
+    const text = this.add.text(x, y - 20, String(Math.round(damage)), {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: s.size,
+      fontStyle: 'bold',
+      color: s.color,
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(100);
+    this.tweens.add({
+      targets: text,
+      y: y - 70,
+      alpha: 0,
+      duration: 700,
+      ease: 'Quad.out',
+      onComplete: () => text.destroy(),
+    });
   }
 
   _showBossBanner() {

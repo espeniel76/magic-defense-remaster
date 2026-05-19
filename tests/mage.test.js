@@ -9,12 +9,13 @@ describe('Mage', () => {
     expect(m.level).toBe(1);
   });
 
-  it('calculates damage based on level multiplier', () => {
+  it('calculates damage with per-level steps (x2, x5 mythic L4, x3 transcendent L5)', () => {
     const base = GAME_CONFIG.classes.FIRE.damage;
-    const lv1 = new Mage('FIRE', 1);
-    const lv3 = new Mage('FIRE', 3);
-    expect(lv1.getDamage()).toBe(base);
-    expect(lv3.getDamage()).toBe(base * 2 * 2); // lv3 = base * 2^(3-1)
+    expect(new Mage('FIRE', 1).getDamage()).toBe(base);
+    expect(new Mage('FIRE', 2).getDamage()).toBeCloseTo(base * 2);
+    expect(new Mage('FIRE', 3).getDamage()).toBeCloseTo(base * 2 * 2);
+    expect(new Mage('FIRE', 4).getDamage()).toBeCloseTo(base * 2 * 2 * 5);
+    expect(new Mage('FIRE', 5).getDamage()).toBeCloseTo(base * 2 * 2 * 5 * 3);
   });
 
   it('calculates attack interval based on attack speed multiplier', () => {
