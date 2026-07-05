@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { SaveStore } from '../core/saveStore.js';
 import { GAME_CONFIG } from '../config/gameConfig.js';
 import { bgm } from '../audio/bgmPlayer.js';
+import { addNavBar } from '../render/navBar.js';
 
 // 스테이지 선택 화면 (홈). 좌우로 밀거나 화살표로 스테이지(맵)를 넘기고,
 // 플레이 버튼으로 그 스테이지를 시작한다. 씬 key는 'TitleScene' 유지.
@@ -83,6 +84,8 @@ export class TitleScene extends Phaser.Scene {
     });
 
     this._renderStage(0);
+
+    addNavBar(this, 'play');
   }
 
   _makeArrow(x, y, glyph, delta) {
