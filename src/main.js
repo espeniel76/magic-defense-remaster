@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { TitleScene } from './scenes/titleScene.js';
-import { Stage2TitleScene } from './scenes/stage2TitleScene.js';
 import { GameScene } from './scenes/gameScene.js';
 import { GameOverScene } from './scenes/gameOverScene.js';
 import { MonsterCodexScene } from './scenes/monsterCodexScene.js';
@@ -16,7 +15,7 @@ const config = {
     width: GAME_CONFIG.display.width,
     height: GAME_CONFIG.display.height,
   },
-  scene: [TitleScene, Stage2TitleScene, GameScene, GameOverScene, MonsterCodexScene],
+  scene: [TitleScene, GameScene, GameOverScene, MonsterCodexScene],
 };
 
 const game = new Phaser.Game(config);

@@ -10,13 +10,16 @@ export class GameOverScene extends Phaser.Scene {
   init(data) {
     this.reachedWave = data?.wave ?? 0;
     this.isVictory = data?.isVictory ?? false;
-    this.mode = data?.mode ?? 'normal';
+    this.stageIndex = data?.stageIndex ?? 0;
   }
 
   create() {
     SaveStore.saveBestWave(this.reachedWave);
+    SaveStore.saveStageBest(this.stageIndex, this.reachedWave);
     const w = this.scale.width;
     const h = this.scale.height;
+    const stage = GAME_CONFIG.stages[this.stageIndex];
+    const clearWave = GAME_CONFIG.wave.stageClearWave;
 
     const title = this.isVictory ? '승리!' : '게임 오버';
     const titleColor = this.isVictory ? '#ffd700' : '#e74c3c';
@@ -28,23 +31,20 @@ export class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     if (this.isVictory) {
-      const modeLabel = this.mode === 'hell' ? '지옥'
-                      : this.mode === 'hard' ? '어려움'
-                      : '일반';
-      this.add.text(w / 2, h * 0.45, `${modeLabel} 모드 클리어!`, {
+      this.add.text(w / 2, h * 0.45, `스테이지 ${this.stageIndex + 1}. ${stage.name} 클리어!`, {
         fontFamily: GAME_CONFIG.font.family,
         fontSize: '36px',
         color: '#ffffff',
       }).setOrigin(0.5);
     } else {
-      this.add.text(w / 2, h * 0.45, `웨이브 ${this.reachedWave}까지 버팀`, {
+      this.add.text(w / 2, h * 0.45, `웨이브 ${this.reachedWave} / ${clearWave} 까지 버팀`, {
         fontFamily: GAME_CONFIG.font.family,
         fontSize: '36px',
         color: '#ffffff',
       }).setOrigin(0.5);
     }
 
-    this.add.text(w / 2, h * 0.55, `최고 기록: ${SaveStore.getBestWave()}`, {
+    this.add.text(w / 2, h * 0.55, `${stage.name} 최고 기록: ${SaveStore.getStageBest(this.stageIndex)} / ${clearWave}`, {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '28px',
       color: '#ffd700',

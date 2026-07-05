@@ -52,13 +52,14 @@ export const GAME_CONFIG = {
     spawnIntervalDecrement: 50,
     minSpawnInterval: 400,
     intermissionMs: 5000,
-    hpScalePerWave: 1.15,
+    hpScalePerWave: 1.10, // 시뮬레이터 튜닝 결과: 전 스테이지 클리어 가능(뒤로 갈수록 어려움). 1.15는 사실상 불가능이었음.
     skeletonStartWave: 5,
     skeletonStartRatio: 0.3,
     skeletonMidWave: 10,
     skeletonMidRatio: 0.5,
     maxConsecutiveSameLane: 3,
     bossInterval: 10,
+    stageClearWave: 50, // 이 웨이브의 보스를 잡으면 스테이지 클리어 (bossInterval * 5)
   },
   lane: {
     enemyMoveDistancePerSecond: 120,
@@ -71,24 +72,23 @@ export const GAME_CONFIG = {
     { name: '바다', color: 0x29B6F6 },
     { name: '성',   color: 0x757575 },
   ],
-  zonesHard: [
-    { name: '신비의숲',   color: 0x7FE3B0 },
-    { name: '얼음설원',   color: 0xBFE6FF },
-    { name: '화산천지',   color: 0xFFD93D },
-    { name: '망각의 바다', color: 0x1A237E },
-    { name: '결전의 성',   color: 0x616161 },
+  // 스테이지 = 맵 선택. 각 스테이지는 하나의 맵에서 50웨이브.
+  // tier: WaveManager의 elite/titan 스폰 + BGM 트랙 + 골드배수를 재활용.
+  // hpMultiplier: 뒤 스테이지일수록 적이 셈.
+  stages: [
+    { name: '초원', color: 0x4CAF50, hpMultiplier: 1.0,  tier: 'normal' },
+    { name: '설원', color: 0xECEFF1, hpMultiplier: 1.3,  tier: 'normal' },
+    { name: '화산', color: 0xE64A19, hpMultiplier: 1.6,  tier: 'hard'   },
+    { name: '바다', color: 0x29B6F6, hpMultiplier: 2.0,  tier: 'hard'   },
+    { name: '성',   color: 0x757575, hpMultiplier: 2.5,  tier: 'hell'   },
+    // 실험실: 카드 미리보기는 연어색, 게임 안 배경은 레인별 연어색/회색 줄무늬.
+    { name: '실험실', color: 0xFA8072, hpMultiplier: 2.6, tier: 'hell',
+      stripes: [0x9E9E9E, 0xFA8072, 0xFA8072, 0x9E9E9E] },
   ],
   hardMode: {
     enemyHpMultiplier: 1.5,
     eliteSpawnRatio: 0.2,
   },
-  zonesHell: [
-    { name: '금지된 영역', color: 0x2D0040 },
-    { name: '얼음설원',    color: 0x2D0040 },
-    { name: '화산천지',    color: 0x2D0040 },
-    { name: '망각의 바다', color: 0x2D0040 },
-    { name: '결전의 성',   color: 0x2D0040 },
-  ],
   hellMode: {
     enemyHpMultiplier: 2,
     goldMultiplier: 1.5,
@@ -96,6 +96,7 @@ export const GAME_CONFIG = {
   },
   save: {
     storageKey: 'magicDefense.bestWave',
+    stageBestPrefix: 'magicDefense.stageBest.', // + stageIndex
   },
   font: {
     family: 'system-ui, -apple-system, "Noto Sans CJK KR", "Malgun Gothic", sans-serif',

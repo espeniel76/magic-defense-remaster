@@ -67,4 +67,6 @@ inv = cf.create_invalidation(
     },
 )
 print(f'  invalidation: {inv["Invalidation"]["Id"]} (보통 30~60초)')
-print(f'\n{BASE_URL}/{PUBLIC_PATH}/')
+# 하위 폴더 주소(끝 슬래시)는 CloudFront가 index.html을 안 붙여 403이 남.
+# 그래서 바로 열리는 전체 주소를 출력한다.
+print(f'\n{BASE_URL}/{PUBLIC_PATH}/index.html')

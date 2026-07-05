@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Enemy } from '../src/core/enemy.js';
+import { GAME_CONFIG } from '../src/config/gameConfig.js';
 
 describe('Enemy', () => {
   it('creates an enemy with base hp/speed scaled by wave', () => {
@@ -15,10 +16,10 @@ describe('Enemy', () => {
     expect(e.wave).toBe(7);
   });
 
-  it('scales hp by wave multiplier 1.15', () => {
+  it('scales hp by the configured wave multiplier', () => {
     const w1 = new Enemy('GOBLIN', 1, 0);
     const w5 = new Enemy('GOBLIN', 5, 0);
-    expect(w5.hp).toBeCloseTo(w1.hp * Math.pow(1.15, 4));
+    expect(w5.hp).toBeCloseTo(w1.hp * Math.pow(GAME_CONFIG.wave.hpScalePerWave, 4));
   });
 
   it('takes damage and marks dead at 0 hp', () => {

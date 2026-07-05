@@ -121,6 +121,13 @@ export class LaneView {
     }
   }
 
+  // 레인별로 다른 색 (줄무늬 배경). colors 길이가 레인 수보다 적으면 순환.
+  setLaneColors(colors) {
+    for (let i = 0; i < this.laneBackgrounds.length; i++) {
+      this.laneBackgrounds[i].fillColor = colors[i % colors.length];
+    }
+  }
+
   laneToWorld(laneIdx, position) {
     const x = this.area.x + laneIdx * this.laneWidth + this.laneWidth / 2;
     const y = this.area.y + position * this.area.height;

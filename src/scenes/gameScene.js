@@ -18,22 +18,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.mode = data?.mode ?? 'normal';
+    this.stageIndex = data?.stageIndex ?? 0;
+    this.stage = GAME_CONFIG.stages[this.stageIndex];
   }
 
   create() {
     this.isGameOver = false;
-    this.currentZoneIndex = 0;
-    if (this.mode === 'hell') {
-      this.zones = GAME_CONFIG.zonesHell;
-      this.hpMultiplier = GAME_CONFIG.hellMode.enemyHpMultiplier;
-    } else if (this.mode === 'hard') {
-      this.zones = GAME_CONFIG.zonesHard;
-      this.hpMultiplier = GAME_CONFIG.hardMode.enemyHpMultiplier;
-    } else {
-      this.zones = GAME_CONFIG.zones;
-      this.hpMultiplier = 1;
-    }
+    // 스테이지 = 하나의 맵에 고정. 난이도는 스테이지 tier/hpMultiplier로.
+    this.hpMultiplier = this.stage.hpMultiplier;
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -61,15 +53,18 @@ export class GameScene extends Phaser.Scene {
       this.scene.start('TitleScene');
     });
 
-    // Lane area
-    const zoneInitial = this.zones[0];
+    // Lane area — background/banner fixed to this stage's map
     this.add.rectangle(0, STATUS_H, w, LANE_H, 0x3a2818).setOrigin(0);
     this.enemyLane = new EnemyLane();
     this.laneView = new LaneView(this, 0, STATUS_H, w, LANE_H, this.enemyLane);
-    this.laneView.setBackgroundColor(zoneInitial.color);
+    if (this.stage.stripes) {
+      this.laneView.setLaneColors(this.stage.stripes);
+    } else {
+      this.laneView.setBackgroundColor(this.stage.color);
+    }
 
-    // Zone name banner (over top of lane area)
-    this.zoneText = this.add.text(w / 2, STATUS_H + 6, zoneInitial.name, {
+    // Stage/map name banner (over top of lane area)
+    this.zoneText = this.add.text(w / 2, STATUS_H + 6, this.stage.name, {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '32px',
       fontStyle: 'bold',
@@ -86,7 +81,7 @@ export class GameScene extends Phaser.Scene {
 
     this.attackResolver = new AttackResolver(this.board, this.enemyLane);
 
-    this.waveManager = new WaveManager(this.mode);
+    this.waveManager = new WaveManager(this.stage.tier);
     this.waveManager.start();
     this.hp = GAME_CONFIG.player.startHp;
     this.statusBar.setHp(this.hp);
@@ -94,7 +89,7 @@ export class GameScene extends Phaser.Scene {
 
     // Action bar
     this.actionBar = new ActionBarView(this, 0, STATUS_H + LANE_H + BOARD_H, w, ACTION_H);
-    const goldMultiplier = this.mode === 'hell' ? GAME_CONFIG.hellMode.goldMultiplier : 1;
+    const goldMultiplier = this.stage.tier === 'hell' ? GAME_CONFIG.hellMode.goldMultiplier : 1;
     this.economy = new EconomyManager(goldMultiplier);
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonCost(this.economy.getSummonCost());
@@ -237,8 +232,11 @@ export class GameScene extends Phaser.Scene {
     }
     for (const killed of laneResult.killed) {
       this.economy.rewardKill();
-      if (killed.typeId === 'BOSS') {
-        this._advanceZone();
+      // 마지막(50웨이브) 보스를 잡으면 스테이지 클리어. 그 전 보스는 그냥 처치.
+      if (killed.typeId === 'BOSS' &&
+          this.waveManager.getCurrentWave() >= GAME_CONFIG.wave.stageClearWave) {
+        this._triggerVictory();
+        return;
       }
     }
 
@@ -356,28 +354,20 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  _advanceZone() {
-    if (this.currentZoneIndex >= this.zones.length - 1) {
-      this._triggerVictory();
-      return;
-    }
-    this.currentZoneIndex += 1;
-    const zone = this.zones[this.currentZoneIndex];
-    this.laneView.setBackgroundColor(zone.color);
-    this.zoneText.setText(zone.name);
-  }
-
   _triggerVictory() {
     this.isGameOver = true;
     this.scene.start('GameOverScene', {
       wave: this.waveManager.getCurrentWave(),
       isVictory: true,
-      mode: this.mode,
+      stageIndex: this.stageIndex,
     });
   }
 
   triggerGameOver() {
     this.isGameOver = true;
-    this.scene.start('GameOverScene', { wave: this.waveManager.getCurrentWave() });
+    this.scene.start('GameOverScene', {
+      wave: this.waveManager.getCurrentWave(),
+      stageIndex: this.stageIndex,
+    });
   }
 }
