@@ -11,10 +11,15 @@ export class TitleScene extends Phaser.Scene {
   create() {
     const w = this.scale.width;
     const h = this.scale.height;
-    this.add.text(w / 2, h * 0.20, '매직디펜스', {
+    this.add.text(w / 2, h * 0.15, '매직 디펜스', {
       fontFamily: GAME_CONFIG.font.family,
-      fontSize: '72px',
+      fontSize: '68px',
       color: '#ffd700',
+    }).setOrigin(0.5);
+    this.add.text(w / 2, h * 0.235, '리마스터', {
+      fontFamily: GAME_CONFIG.font.family,
+      fontSize: '44px',
+      color: '#ff8c42',
     }).setOrigin(0.5);
 
     const best = SaveStore.getBestWave();

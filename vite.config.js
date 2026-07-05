@@ -14,9 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: '매직디펜스',
-        short_name: '매직디펜스',
-        description: '마법사 머지 디펜스 게임',
+        name: '매직 디펜스 리마스터',
+        short_name: '리마스터',
+        description: '마법사 머지 디펜스 게임 (리마스터)',
         theme_color: '#0f1419',
         background_color: '#0f1419',
         display: 'standalone',

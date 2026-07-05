@@ -30,7 +30,7 @@ BUCKET = env['AWS_BUCKET_NAME']
 BASE_URL = env['AWS_S3_BASE_URL']
 # CloudFront 배포가 OriginPath=/publish 로 설정돼 있어, S3 키는 publish/ 아래에 둬야
 # 도메인의 같은 경로로 접근됨. 사용자에게는 도메인 기준 경로(예: magic-defense)만 받는다.
-PUBLIC_PATH = sys.argv[1] if len(sys.argv) > 1 else 'magic-defense'
+PUBLIC_PATH = sys.argv[1] if len(sys.argv) > 1 else 'magic-defense-remaster'
 S3_PREFIX = f'publish/{PUBLIC_PATH}'
 
 if not os.path.exists(DIST):

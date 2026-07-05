@@ -1,4 +1,7 @@
-# 매직디펜스
+# 매직 디펜스 리마스터
+
+> 이 저장소는 원본 [magic-defense](https://github.com/espeniel76/magic-defense) 에서 분기(fork)한 **리마스터 버전**입니다.
+> 원본과 git·배포 링크가 완전히 분리되어 독립적으로 개발됩니다.
 
 나는 지금부터 게임을 만들거야.
 
@@ -15,7 +18,7 @@
 
 ---
 
-**배포 URL**: <https://static.gochon-isahoe.kr/magic-defense/index.html>
+**배포 URL**: <https://static.gochon-isahoe.kr/magic-defense-remaster/index.html>
 
 ## 새 노트북 셋업
 
@@ -29,8 +32,8 @@
 
 ```powershell
 cd C:\Users\<사용자명>\git
-git clone https://github.com/espeniel76/magic-defense.git 매직디펜스
-cd 매직디펜스
+git clone https://github.com/espeniel76/magic-defense-remaster.git 매직디펜스리마스터
+cd 매직디펜스리마스터
 ```
 
 ### 3. 의존성 설치
@@ -65,8 +68,8 @@ npm run dev
 ## 배포
 
 ```powershell
-npx vite build --base=/magic-defense/
-python upload_s3.py magic-defense
+npx vite build --base=/magic-defense-remaster/
+python upload_s3.py magic-defense-remaster
 ```
 
 자동으로 S3 업로드 + CloudFront 캐시 무효화 (30~60초 뒤 전세계 반영).
