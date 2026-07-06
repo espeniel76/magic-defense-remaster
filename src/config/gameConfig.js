@@ -37,6 +37,19 @@ export const GAME_CONFIG = {
     EARTH:     { id: 'EARTH',     emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
     POISON:    { id: 'POISON',    emoji: '☠️',  color: '#7B5DE2', hatColor: '#D597E8', damage: 6,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.5, poisonTickMs: 1000, poisonDurationMs: 3000 },
     WIND:      { id: 'WIND',      emoji: '🌪️',  color: '#E0E0E0', hatColor: '#A8A8A8', damage: 3,  atkPerSec: 1.6,  effect: 'knockback', knockback: 0.15, mythicKnockback: 0.30 },
+    // ── 희귀(rare): 기본 6원소보다 한 단계 강함 ──
+    SAND:      { id: 'SAND',      emoji: '🏜️',  color: '#E6C86E', hatColor: '#C9A94E', damage: 7,  atkPerSec: 1.4,  effect: 'slow',  slowFactor: 0.4, slowDuration: 2200 },
+    ACID:      { id: 'ACID',      emoji: '🧪',  color: '#A6E22E', hatColor: '#6B8E23', damage: 8,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.6, poisonTickMs: 1000, poisonDurationMs: 3000 },
+    // ── 에픽(epic) ──
+    MATRIX:    { id: 'MATRIX',    emoji: '🟩',  color: '#00E676', hatColor: '#00A152', damage: 9,  atkPerSec: 1.5,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.6 },
+    THUNDER:   { id: 'THUNDER',   emoji: '🌩️',  color: '#FFE45C', hatColor: '#F2B705', damage: 12, atkPerSec: 1.2,  effect: 'aoe',   aoeRadius: 1.8, stunDuration: 600 },
+    LAVA:      { id: 'LAVA',      emoji: '🌋',  color: '#FF5722', hatColor: '#B71C1C', damage: 14, atkPerSec: 1.1,  effect: 'poison', poisonRatio: 0.7, poisonTickMs: 800, poisonDurationMs: 3000 },
+    SUMMONER:  { id: 'SUMMONER',  emoji: '🔮',  color: '#B388FF', hatColor: '#7C4DFF', damage: 16, atkPerSec: 1.3,  effect: 'single' },
+    // ── 전설(legendary): 최상위 ──
+    CONTRACTOR:{ id: 'CONTRACTOR',emoji: '📜',  color: '#E040FB', hatColor: '#8E24AA', damage: 28, atkPerSec: 1.3,  effect: 'single' },
+    APOSTLE:   { id: 'APOSTLE',   emoji: '💀',  color: '#7C0A02', hatColor: '#3E0703', damage: 22, atkPerSec: 1.1,  effect: 'aoe',   aoeRadius: 2.0, stunDuration: 700 },
+    EXECUTOR:  { id: 'EXECUTOR',  emoji: '⚔️',  color: '#FFC400', hatColor: '#C79100', damage: 24, atkPerSec: 1.4,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.7 },
+    WATCHER:   { id: 'WATCHER',   emoji: '👁️',  color: '#26C6DA', hatColor: '#00838F', damage: 20, atkPerSec: 1.5,  effect: 'poison', poisonRatio: 0.8, poisonTickMs: 700, poisonDurationMs: 3500 },
   },
   enemies: {
     GOBLIN:   { id: 'GOBLIN',   displayName: '일반',   emoji: '👹', color: '#E74C3C', hp: 10,  speed: 0.33, baseDamage: 1 },

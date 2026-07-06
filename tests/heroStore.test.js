@@ -24,15 +24,20 @@ describe('HeroStore', () => {
   });
 
   describe('owned heroes', () => {
-    it('is empty initially', () => {
-      expect(HeroStore.getOwnedCount('flame')).toBe(0);
-      expect(HeroStore.isOwned('flame')).toBe(false);
+    it('non-common heroes are not owned initially', () => {
+      expect(HeroStore.getOwnedCount('lava')).toBe(0);
+      expect(HeroStore.isOwned('lava')).toBe(false);
+    });
+    it('common heroes are pre-unlocked', () => {
+      ['flame', 'ice', 'electric', 'earth'].forEach(id => {
+        expect(HeroStore.isOwned(id)).toBe(true);
+      });
     });
     it('stacks duplicates', () => {
-      HeroStore.addHero('flame');
-      HeroStore.addHero('flame');
-      expect(HeroStore.getOwnedCount('flame')).toBe(2);
-      expect(HeroStore.isOwned('flame')).toBe(true);
+      HeroStore.addHero('wind');
+      HeroStore.addHero('wind');
+      expect(HeroStore.getOwnedCount('wind')).toBe(2);
+      expect(HeroStore.isOwned('wind')).toBe(true);
     });
     it('ignores unknown hero ids', () => {
       HeroStore.addHero('not-a-hero');
@@ -69,6 +74,20 @@ describe('HeroStore', () => {
       expect(HeroStore.isInParty('ice')).toBe(true);
       expect(HeroStore.toggleParty('ice')).toBe(false);
       expect(HeroStore.isInParty('ice')).toBe(false);
+    });
+  });
+
+  describe('battle class pool', () => {
+    it('falls back to common hero classes when party is empty', () => {
+      expect(HeroStore.getParty()).toEqual([]);
+      expect(HeroStore.getBattleClassIds().sort())
+        .toEqual(['EARTH', 'FIRE', 'ICE', 'LIGHTNING'].sort());
+    });
+    it('maps party heroes to their in-game classIds', () => {
+      HeroStore.addToParty('flame'); // common, pre-unlocked
+      HeroStore.addHero('poison');   // rare — must be acquired first
+      HeroStore.addToParty('poison');
+      expect(HeroStore.getBattleClassIds().sort()).toEqual(['FIRE', 'POISON'].sort());
     });
   });
 

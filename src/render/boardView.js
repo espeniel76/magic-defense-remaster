@@ -58,129 +58,6 @@ function drawHexagon(g, cx, cy, r, color) {
   g.fillPath();
 }
 
-function drawInvertedTrapezoid(g, cx, cy, topW, bottomW, h, color) {
-  g.fillStyle(color, 1);
-  g.beginPath();
-  g.moveTo(cx - topW / 2, cy - h / 2);
-  g.lineTo(cx + topW / 2, cy - h / 2);
-  g.lineTo(cx + bottomW / 2, cy + h / 2);
-  g.lineTo(cx - bottomW / 2, cy + h / 2);
-  g.closePath();
-  g.fillPath();
-}
-
-function drawWindCurl(g, cx, cy, r, thickness, color) {
-  g.lineStyle(thickness, color, 1);
-  // Outer arc (270 degrees of a curl)
-  g.beginPath();
-  const segments = 24;
-  const startAngle = -Math.PI / 2;
-  const endAngle = Math.PI;
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const a = startAngle + (endAngle - startAngle) * t;
-    const x = cx + Math.cos(a) * r;
-    const y = cy + Math.sin(a) * r;
-    if (i === 0) g.moveTo(x, y);
-    else g.lineTo(x, y);
-  }
-  g.strokePath();
-}
-
-function buildMythicWind(scene, size) {
-  const BODY = 0xe0e0e0;
-  const HAT  = 0xa8a8a8;
-  const BAND = 0x88b4d6;
-  const ACCENT = 0xffffff;
-  const CURL = 0xb8d8ee;
-
-  const container = scene.add.container(0, 0);
-
-  // Floating wind curls around the body
-  const curls = scene.add.graphics();
-  drawWindCurl(curls, -size * 1.30, -size * 0.40, size * 0.30, size * 0.10, CURL);
-  drawWindCurl(curls,  size * 1.30, -size * 0.20, size * 0.28, size * 0.10, CURL);
-  drawWindCurl(curls,  0,            size * 1.25, size * 0.32, size * 0.10, CURL);
-
-  // Body
-  const body = scene.add.circle(0, size * 0.15, size, BODY);
-
-  // Hat triangle
-  const hat = scene.add.graphics();
-  hat.fillStyle(HAT, 1);
-  hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.55, -size * 0.55);
-  hat.lineTo( size * 0.55, -size * 0.55);
-  hat.closePath();
-  hat.fillPath();
-
-  // Swirl ornament on hat face
-  const hatSwirl = scene.add.graphics();
-  drawWindCurl(hatSwirl, 0, -size * 0.95, size * 0.18, size * 0.08, ACCENT);
-
-  // Hat band
-  const band = scene.add.rectangle(0, -size * 0.45, size * 1.40, size * 0.22, BAND);
-
-  // Forehead swirl
-  const foreheadSwirl = scene.add.graphics();
-  drawWindCurl(foreheadSwirl, 0, -size * 0.22, size * 0.12, size * 0.06, BAND);
-
-  // Eyes
-  const eyeL = scene.add.circle(-size * 0.36, size * 0.10, size * 0.24, 0xffffff);
-  const eyeR = scene.add.circle( size * 0.36, size * 0.10, size * 0.24, 0xffffff);
-
-  container.add([curls, body, hat, hatSwirl, band, foreheadSwirl, eyeL, eyeR]);
-  return container;
-}
-
-function buildMythicPoison(scene, size) {
-  const BODY = 0x7b5de2;
-  const HAT  = 0xd597e8;
-  const DEEP = 0x5238d6;
-  const ORB  = 0xf9b742;
-  const LINE = 0x222222;
-
-  const container = scene.add.container(0, 0);
-
-  // Floating orbs with thin black bar (left + right of body)
-  const orbL = scene.add.circle(-size * 1.30, size * 0.20, size * 0.30, ORB);
-  const barL = scene.add.rectangle(-size * 1.30, size * 0.20, size * 0.06, size * 0.55, LINE);
-  const orbR = scene.add.circle( size * 1.40, -size * 0.50, size * 0.30, ORB);
-  const barR = scene.add.rectangle( size * 1.40, -size * 0.50, size * 0.06, size * 0.55, LINE);
-
-  // Body
-  const body = scene.add.circle(0, size * 0.15, size, BODY);
-
-  // Hat
-  const hat = scene.add.graphics();
-  hat.fillStyle(HAT, 1);
-  hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.55, -size * 0.55);
-  hat.lineTo( size * 0.55, -size * 0.55);
-  hat.closePath();
-  hat.fillPath();
-
-  // Small inverted trapezoid on hat face
-  const hatTrap = scene.add.graphics();
-  drawInvertedTrapezoid(hatTrap, 0, -size * 0.82, size * 0.28, size * 0.18, size * 0.20, DEEP);
-
-  // Hat band
-  const band = scene.add.rectangle(0, -size * 0.45, size * 1.45, size * 0.24, DEEP);
-
-  // Forehead trapezoid between eyes
-  const foreheadTrap = scene.add.graphics();
-  drawInvertedTrapezoid(foreheadTrap, 0, -size * 0.20, size * 0.26, size * 0.16, size * 0.18, DEEP);
-
-  // Eyes
-  const eyeL = scene.add.circle(-size * 0.36, size * 0.15, size * 0.24, 0xffffff);
-  const eyeR = scene.add.circle( size * 0.36, size * 0.15, size * 0.24, 0xffffff);
-
-  container.add([orbL, barL, orbR, barR, body, hat, hatTrap, band, foreheadTrap, eyeL, eyeR]);
-  return container;
-}
-
 function drawArch(g, cx, cy, w, h, color) {
   g.fillStyle(color, 1);
   g.beginPath();
@@ -234,15 +111,15 @@ function buildMythicIce(scene, size) {
   const hat = scene.add.graphics();
   hat.fillStyle(HAT, 1);
   hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.55, -size * 0.55);
-  hat.lineTo( size * 0.55, -size * 0.55);
+  hat.moveTo(0, -size * 1.75);
+  hat.lineTo(-size * 0.55, -size * 0.75);
+  hat.lineTo( size * 0.55, -size * 0.75);
   hat.closePath();
   hat.fillPath();
 
   // Arch ornament on hat
   const hatArch = scene.add.graphics();
-  drawArch(hatArch, 0, -size * 0.95, size * 0.26, size * 0.42, ARCH);
+  drawArch(hatArch, 0, -size * 1.15, size * 0.26, size * 0.42, ARCH);
 
   // Forehead teal triangle (small, pointing up)
   const forehead = scene.add.graphics();
@@ -281,18 +158,18 @@ function buildMythicFire(scene, size) {
   const hat = scene.add.graphics();
   hat.fillStyle(BODY, 1);
   hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.52, -size * 0.55);
-  hat.lineTo( size * 0.52, -size * 0.55);
+  hat.moveTo(0, -size * 1.75);
+  hat.lineTo(-size * 0.52, -size * 0.75);
+  hat.lineTo( size * 0.52, -size * 0.75);
   hat.closePath();
   hat.fillPath();
 
   // Hexagon on hat face
   const hatHex = scene.add.graphics();
-  drawHexagon(hatHex, 0, -size * 1.00, size * 0.18, PINK);
+  drawHexagon(hatHex, 0, -size * 1.20, size * 0.18, PINK);
 
   // Hat band
-  const band = scene.add.rectangle(0, -size * 0.5, size * 1.30, size * 0.22, PINK);
+  const band = scene.add.rectangle(0, -size * 0.7, size * 1.30, size * 0.22, PINK);
 
   // Forehead hexagon
   const foreheadHex = scene.add.graphics();
@@ -320,18 +197,18 @@ function buildMythicEarth(scene, size) {
   const hat = scene.add.graphics();
   hat.fillStyle(HAT, 1);
   hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.55, -size * 0.55);
-  hat.lineTo( size * 0.55, -size * 0.55);
+  hat.moveTo(0, -size * 1.75);
+  hat.lineTo(-size * 0.55, -size * 0.75);
+  hat.lineTo( size * 0.55, -size * 0.75);
   hat.closePath();
   hat.fillPath();
 
   // Hat band
-  const band = scene.add.rectangle(0, -size * 0.5, size * 1.35, size * 0.22, BAND);
+  const band = scene.add.rectangle(0, -size * 0.7, size * 1.35, size * 0.22, BAND);
 
   // Diamond on hat face
   const hatDiamond = scene.add.graphics();
-  drawDiamond(hatDiamond, 0, -size * 1.05, size * 0.32, size * 0.32, DIA);
+  drawDiamond(hatDiamond, 0, -size * 1.25, size * 0.32, size * 0.32, DIA);
 
   // Forehead diamond between eyes
   const foreheadDiamond = scene.add.graphics();
@@ -352,53 +229,78 @@ function buildMythicEarth(scene, size) {
   return container;
 }
 
-function buildMythicWizard(scene, size) {
-  const BODY  = 0xf8b945;
-  const HAT   = 0xf89f44;
-  const BAND  = 0xf48438;
-  const EYE_R = 0xee8a2e;
-  const WAND  = 0x6b4423;
-  const STAR  = 0xfacf5a;
-  const STAR2 = 0xfff39c;
-  const DARK  = 0x4d2c0d;
+// 주시자(WATCHER) 전용 신화 디자인 — 빨강 몸통 + 금색 뾰족 모자 + 지팡이
+function buildMythicWatcher(scene, size) {
+  const BODY = 0xee2222; // 빨강 (몸통)
+  const LIME = 0xffc400; // 금색 (모자/지팡이/장식)
+  const STAR = 0xb71c1c; // 진빨강 (별/지팡이 머리)
 
   const container = scene.add.container(0, 0);
 
-  // Wand (drawn behind body, on the left)
-  const wand = scene.add.graphics();
-  wand.lineStyle(size * 0.12, WAND, 1);
-  wand.beginPath();
-  wand.moveTo(-size * 0.85, size * 0.6);
-  wand.lineTo(-size * 1.45, -size * 0.6);
-  wand.strokePath();
-  drawFilledStar(wand, -size * 1.55, -size * 0.75, size * 0.32, size * 0.14, STAR);
-  drawFilledStar(wand, -size * 1.55, -size * 0.75, size * 0.16, size * 0.08, STAR2);
+  // 지팡이 (몸통 뒤, 왼쪽) — 라임 막대 + 청록 마름모 머리
+  const staff = scene.add.graphics();
+  staff.lineStyle(size * 0.13, LIME, 1);
+  staff.beginPath();
+  staff.moveTo(-size * 0.72, size * 1.05);
+  staff.lineTo(-size * 1.22, -size * 0.55);
+  staff.strokePath();
+  const headX = -size * 1.28, headY = -size * 0.70;
+  const staffHead = scene.add.graphics();
+  drawDiamond(staffHead, headX, headY, size * 0.66, size * 0.66, STAR);
+  drawFilledStar(staffHead, headX, headY, size * 0.28, size * 0.12, LIME, 6);
+  const staffDot = scene.add.circle(headX, headY, size * 0.09, STAR);
 
-  // Body
-  const body = scene.add.circle(0, size * 0.15, size, BODY);
+  // 오른쪽 떠다니는 라임 사각형 장식
+  const rects = scene.add.graphics();
+  rects.fillStyle(LIME, 1);
+  rects.fillRect(size * 1.12, -size * 0.38, size * 0.52, size * 0.22);
+  rects.fillRect(size * 1.02, size * 0.30, size * 0.44, size * 0.22);
 
-  // Eyes (left white, right orange — matches the design)
-  const eyeL = scene.add.circle(-size * 0.36, size * 0.10, size * 0.24, 0xffffff);
-  const eyeR = scene.add.circle( size * 0.36, size * 0.10, size * 0.24, EYE_R);
-
-  // Hat triangle
+  // 뾰족한 라임 모자 (몸통 뒤에 깔아 티어드롭 실루엣)
   const hat = scene.add.graphics();
-  hat.fillStyle(HAT, 1);
+  hat.fillStyle(LIME, 1);
   hat.beginPath();
-  hat.moveTo(0, -size * 1.55);
-  hat.lineTo(-size * 0.62, -size * 0.55);
-  hat.lineTo( size * 0.62, -size * 0.55);
+  hat.moveTo(0, -size * 1.95);
+  hat.lineTo(-size * 0.74, -size * 0.45);
+  hat.lineTo( size * 0.74, -size * 0.45);
   hat.closePath();
   hat.fillPath();
 
-  // Hat band
-  const band = scene.add.rectangle(0, -size * 0.50, size * 1.45, size * 0.22, BAND);
+  // 몸통 (청록)
+  const body = scene.add.circle(0, size * 0.15, size, BODY);
 
-  // 6-point dark star on hat
+  // 모자 위 4각 청록 별
   const hatStar = scene.add.graphics();
-  drawFilledStar(hatStar, 0, -size * 1.05, size * 0.22, size * 0.10, DARK, 6);
+  drawFilledStar(hatStar, 0, -size * 1.02, size * 0.36, size * 0.13, STAR, 4);
 
-  container.add([wand, body, eyeL, eyeR, hat, band, hatStar]);
+  // 눈 (흰색)
+  const eyeL = scene.add.circle(-size * 0.36, size * 0.18, size * 0.26, 0xffffff);
+  const eyeR = scene.add.circle( size * 0.36, size * 0.18, size * 0.26, 0xffffff);
+
+  // 바닥 라임 사각형 (발)
+  const feet = scene.add.graphics();
+  feet.fillStyle(LIME, 1);
+  feet.fillRect(-size * 0.28, size * 1.00, size * 0.56, size * 0.22);
+
+  container.add([staff, staffHead, staffDot, rects, hat, body, hatStar, eyeL, eyeR, feet]);
+  return container;
+}
+
+// 신화(L4+) 전용 아트. 일반 4종·바람·독은 신화 아트 없이 기본 렌더 사용.
+const MYTHIC_BUILDERS = {
+  CONTRACTOR: buildMythicIce,    // 계약자 = 얼음 신화 디자인
+  APOSTLE: buildMythicFire,      // 멸망의 사도 = 화염 신화 디자인
+  EXECUTOR: buildMythicEarth,    // 최고집행관 = 땅 신화 디자인
+  WATCHER: buildMythicWatcher,   // 주시자 = 전용 디자인
+};
+
+// classId 에 신화 아트가 있으면 그려서 컨테이너 반환, 없으면 null.
+export function drawMythicFigure(scene, cx, cy, size, classId) {
+  const builder = MYTHIC_BUILDERS[classId];
+  if (!builder) return null;
+  const container = builder(scene, size);
+  container.x = cx;
+  container.y = cy;
   return container;
 }
 
@@ -446,15 +348,7 @@ export class BoardView {
     const hatColor = hexToInt(mage.config.hatColor ?? mage.config.color);
     const size = this.cellSize * 0.4;
     const level = mage.level;
-    const mythicBuilders = {
-      LIGHTNING: buildMythicWizard,
-      EARTH: buildMythicEarth,
-      FIRE: buildMythicFire,
-      ICE: buildMythicIce,
-      POISON: buildMythicPoison,
-      WIND: buildMythicWind,
-    };
-    const mythicBuilder = level >= 4 ? mythicBuilders[mage.config.id] : null;
+    const mythicBuilder = level >= 4 ? MYTHIC_BUILDERS[mage.config.id] : null;
 
     let container;
     if (mythicBuilder) {
@@ -478,9 +372,9 @@ export class BoardView {
       const hat = this.scene.add.graphics();
       hat.fillStyle(hatColor, 1);
       hat.beginPath();
-      hat.moveTo(0, -size * 1.5);
-      hat.lineTo(-size * 0.6, -size * 0.7);
-      hat.lineTo(size * 0.6, -size * 0.7);
+      hat.moveTo(0, -size * 1.7);
+      hat.lineTo(-size * 0.6, -size * 0.9);
+      hat.lineTo(size * 0.6, -size * 0.9);
       hat.closePath();
       hat.fillPath();
 

@@ -11,6 +11,7 @@ import { LaneView } from '../render/laneView.js';
 import { Enemy } from '../core/enemy.js';
 import { WaveManager } from '../core/waveManager.js';
 import { AttackResolver } from '../core/attackResolver.js';
+import { HeroStore } from '../core/heroStore.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -183,7 +184,9 @@ export class GameScene extends Phaser.Scene {
       });
       return;
     }
-    const ids = ['FIRE', 'ICE', 'LIGHTNING', 'EARTH', 'POISON', 'WIND'];
+    // 소환 풀 = 내 파티 영웅들의 클래스 (파티가 비면 일반 영웅으로 폴백)
+    const ids = HeroStore.getBattleClassIds();
+    if (ids.length === 0) return;
     const pick = ids[Math.floor(Math.random() * ids.length)];
     const mage = new Mage(pick, 1);
     const cell = this.board.placeAtRandomEmpty(mage);
