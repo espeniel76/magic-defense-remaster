@@ -13,7 +13,7 @@ export class Mage {
   }
 
   getDamage() {
-    const { levelDamageStep, mythicDamageStep, transcendentDamageStep } = GAME_CONFIG.mage;
+    const { levelDamageStep, mythicDamageStep, transcendentDamageStep, rarityDamageMultiplier } = GAME_CONFIG.mage;
     let mult = 1;
     for (let lv = 2; lv <= this.level; lv++) {
       let step = levelDamageStep;
@@ -21,7 +21,9 @@ export class Mage {
       else if (lv === 5) step = transcendentDamageStep;
       mult *= step;
     }
-    return this.config.damage * mult;
+    // 등급 배수 — 높은 등급 영웅일수록 기본 데미지가 확실히 세다.
+    const rarityMult = rarityDamageMultiplier?.[this.config.rarity] ?? 1;
+    return this.config.damage * mult * rarityMult;
   }
 
   getAttackIntervalMs() {

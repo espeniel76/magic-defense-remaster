@@ -21,12 +21,15 @@ export class GameScene extends Phaser.Scene {
   init(data) {
     this.stageIndex = data?.stageIndex ?? 0;
     this.stage = GAME_CONFIG.stages[this.stageIndex];
+    const difficultyId = data?.difficultyId ?? GAME_CONFIG.defaultDifficultyId;
+    this.difficulty = GAME_CONFIG.difficulties.find(d => d.id === difficultyId)
+      ?? GAME_CONFIG.difficulties.find(d => d.id === GAME_CONFIG.defaultDifficultyId);
   }
 
   create() {
     this.isGameOver = false;
-    // 스테이지 = 하나의 맵에 고정. 난이도는 스테이지 tier/hpMultiplier로.
-    this.hpMultiplier = this.stage.hpMultiplier;
+    // 적 HP = 스테이지 기본 배수 × 선택 난이도 배수.
+    this.hpMultiplier = this.stage.hpMultiplier * this.difficulty.hpMultiplier;
     const w = this.scale.width;
     const h = this.scale.height;
 
@@ -65,7 +68,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Stage/map name banner (over top of lane area)
-    this.zoneText = this.add.text(w / 2, STATUS_H + 6, this.stage.name, {
+    this.zoneText = this.add.text(w / 2, STATUS_H + 6, `${this.stage.name} · ${this.difficulty.name}`, {
       fontFamily: GAME_CONFIG.font.family,
       fontSize: '32px',
       fontStyle: 'bold',
@@ -90,7 +93,8 @@ export class GameScene extends Phaser.Scene {
 
     // Action bar
     this.actionBar = new ActionBarView(this, 0, STATUS_H + LANE_H + BOARD_H, w, ACTION_H);
-    const goldMultiplier = this.stage.tier === 'hell' ? GAME_CONFIG.hellMode.goldMultiplier : 1;
+    const stageGold = this.stage.tier === 'hell' ? GAME_CONFIG.hellMode.goldMultiplier : 1;
+    const goldMultiplier = stageGold * this.difficulty.goldMultiplier;
     this.economy = new EconomyManager(goldMultiplier);
     this.statusBar.setGold(this.economy.getGold());
     this.actionBar.setSummonCost(this.economy.getSummonCost());
@@ -363,6 +367,7 @@ export class GameScene extends Phaser.Scene {
       wave: this.waveManager.getCurrentWave(),
       isVictory: true,
       stageIndex: this.stageIndex,
+      difficultyId: this.difficulty.id,
     });
   }
 
@@ -371,6 +376,7 @@ export class GameScene extends Phaser.Scene {
     this.scene.start('GameOverScene', {
       wave: this.waveManager.getCurrentWave(),
       stageIndex: this.stageIndex,
+      difficultyId: this.difficulty.id,
     });
   }
 }

@@ -15,9 +15,9 @@ export function drawHeroFigure(scene, cx, cy, size, classConfig) {
   const hat = scene.add.graphics();
   hat.fillStyle(hatColor, 1);
   hat.beginPath();
-  hat.moveTo(0, -size * 1.7);
-  hat.lineTo(-size * 0.6, -size * 0.9);
-  hat.lineTo(size * 0.6, -size * 0.9);
+  hat.moveTo(0, -size * 1.45);
+  hat.lineTo(-size * 0.6, -size * 0.65);
+  hat.lineTo(size * 0.6, -size * 0.65);
   hat.closePath();
   hat.fillPath();
 

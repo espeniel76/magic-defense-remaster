@@ -11,6 +11,8 @@ export class GameOverScene extends Phaser.Scene {
     this.reachedWave = data?.wave ?? 0;
     this.isVictory = data?.isVictory ?? false;
     this.stageIndex = data?.stageIndex ?? 0;
+    this.difficulty = GAME_CONFIG.difficulties.find(d => d.id === data?.difficultyId)
+      ?? GAME_CONFIG.difficulties.find(d => d.id === GAME_CONFIG.defaultDifficultyId);
   }
 
   create() {
@@ -31,7 +33,7 @@ export class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     if (this.isVictory) {
-      this.add.text(w / 2, h * 0.45, `스테이지 ${this.stageIndex + 1}. ${stage.name} 클리어!`, {
+      this.add.text(w / 2, h * 0.45, `${stage.name} · ${this.difficulty.name} 클리어!`, {
         fontFamily: GAME_CONFIG.font.family,
         fontSize: '36px',
         color: '#ffffff',

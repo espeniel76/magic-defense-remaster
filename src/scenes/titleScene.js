@@ -64,6 +64,12 @@ export class TitleScene extends Phaser.Scene {
       fontSize: '22px', color: '#888888',
     }).setOrigin(0.5);
 
+    // 난이도 선택 (기본 = 어려움, 지금까지의 밸런스)
+    this.difficulties = GAME_CONFIG.difficulties;
+    this.difficultyIndex = Math.max(0,
+      this.difficulties.findIndex(d => d.id === GAME_CONFIG.defaultDifficultyId));
+    this._makeDifficultyRow(h * 0.665);
+
     // 플레이 버튼
     const playBtn = this.add.rectangle(w / 2, h * 0.75, w * 0.6, 120, 0x2ecc71)
       .setInteractive(new Phaser.Geom.Rectangle(-30, -30, w * 0.6 + 60, 180), Phaser.Geom.Rectangle.Contains);
@@ -86,6 +92,36 @@ export class TitleScene extends Phaser.Scene {
     this._renderStage(0);
 
     addNavBar(this, 'play');
+  }
+
+  _makeDifficultyRow(y) {
+    const w = this.scale.width;
+    const n = this.difficulties.length;
+    const slot = (w * 0.92) / n;
+    const startX = w * 0.04;
+    this.diffButtons = this.difficulties.map((d, i) => {
+      const cx = startX + slot * (i + 0.5);
+      const bg = this.add.rectangle(cx, y, slot * 0.9, 58, d.color, 1)
+        .setStrokeStyle(3, 0xffffff, 0.6)
+        .setInteractive({ useHandCursor: true });
+      const label = this.add.text(cx, y, d.name, {
+        fontFamily: GAME_CONFIG.font.family, fontSize: '24px', color: '#ffffff', fontStyle: 'bold',
+      }).setOrigin(0.5);
+      bg.on('pointerup', () => this._selectDifficulty(i));
+      return { bg, label, color: d.color };
+    });
+    this._selectDifficulty(this.difficultyIndex);
+  }
+
+  _selectDifficulty(i) {
+    this.difficultyIndex = i;
+    this.diffButtons.forEach((b, idx) => {
+      const on = idx === i;
+      b.bg.setFillStyle(b.color, on ? 1 : 0.25);
+      b.bg.setStrokeStyle(on ? 4 : 2, 0xffffff, on ? 0.95 : 0.3);
+      b.label.setColor(on ? '#ffffff' : '#c8c8c8');
+      b.label.setScale(on ? 1.0 : 0.9);
+    });
   }
 
   _makeArrow(x, y, glyph, delta) {
@@ -131,7 +167,11 @@ export class TitleScene extends Phaser.Scene {
 
   _startStage() {
     const s = this.stages[this.stageIndex];
+    const difficulty = this.difficulties[this.difficultyIndex];
     bgm.start(s.tier);
-    this.scene.start('GameScene', { stageIndex: this.stageIndex });
+    this.scene.start('GameScene', {
+      stageIndex: this.stageIndex,
+      difficultyId: difficulty.id,
+    });
   }
 }

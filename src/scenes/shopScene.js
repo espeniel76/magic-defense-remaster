@@ -5,6 +5,7 @@ import { HeroStore } from '../core/heroStore.js';
 import { drawHero } from '../core/gacha.js';
 import { addNavBar } from '../render/navBar.js';
 import { drawHeroFigure } from '../render/heroFigure.js';
+import { drawMythicFigure } from '../render/boardView.js';
 
 export class ShopScene extends Phaser.Scene {
   constructor() {
@@ -25,13 +26,19 @@ export class ShopScene extends Phaser.Scene {
       fontFamily: GAME_CONFIG.font.family, fontSize: '34px', color: '#7ee787', fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    // 소환 박스 2×2
+    // 소환 박스 — 일반 4개는 2×2, 신화 소환은 맨 아래 가로 2배 폭.
+    const normalBoxes = GACHA_BOXES.filter(b => !b.wide);
+    const wideBoxes = GACHA_BOXES.filter(b => b.wide);
+
     const boxW = w * 0.43;
-    const boxH = h * 0.30;
+    const boxH = h * 0.24;
     const colX = [w * 0.275, w * 0.725];
-    const rowY = [h * 0.35, h * 0.68];
-    GACHA_BOXES.forEach((box, i) => {
+    const rowY = [h * 0.30, h * 0.56];
+    normalBoxes.forEach((box, i) => {
       this._summonBox(colX[i % 2], rowY[Math.floor(i / 2)], boxW, boxH, box);
+    });
+    wideBoxes.forEach((box) => {
+      this._wideSummonBox(w / 2, h * 0.80, w * 0.88, h * 0.16, box);
     });
 
     addNavBar(this, 'shop');
@@ -59,6 +66,40 @@ export class ShopScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.add.text(cx, cy + boxH * 0.43, '탭하여 소환', {
+      fontFamily: GAME_CONFIG.font.family, fontSize: '16px', color: '#ffd700',
+    }).setOrigin(0.5);
+
+    bg.on('pointerup', () => this._pull(box, bg));
+  }
+
+  // 신화 소환 — 가로로 긴 특별 박스 (전설 90% / 신화 10%)
+  _wideSummonBox(cx, cy, boxW, boxH, box) {
+    // 은은한 붉은 글로우
+    this.add.rectangle(cx, cy, boxW + 14, boxH + 14, box.accent, 0.14);
+    const bg = this.add.rectangle(cx, cy, boxW, boxH, 0x2a1620)
+      .setStrokeStyle(5, box.accent)
+      .setInteractive({ useHandCursor: true });
+
+    // 좌측 등급 아이콘
+    const iconX = cx - boxW * 0.36;
+    this.add.circle(iconX, cy, boxH * 0.30, box.accent).setStrokeStyle(3, 0xffffff, 0.5);
+
+    // 중앙: 이름 + 확률
+    this.add.text(cx, cy - boxH * 0.20, box.name, {
+      fontFamily: GAME_CONFIG.font.family, fontSize: '30px', color: '#ff8a80', fontStyle: 'bold',
+    }).setOrigin(0.5);
+    const oddsStr = Object.entries(box.odds)
+      .map(([r, p]) => `${RARITIES[r].name} ${Math.round(p * 100)}%`).join('    ');
+    this.add.text(cx, cy + boxH * 0.18, oddsStr, {
+      fontFamily: GAME_CONFIG.font.family, fontSize: '18px', color: '#e0c0c0',
+    }).setOrigin(0.5);
+
+    // 우측: 비용 + 탭 안내
+    const rX = cx + boxW * 0.36;
+    this.add.text(rX, cy - boxH * 0.16, `젬 ${box.cost}`, {
+      fontFamily: GAME_CONFIG.font.family, fontSize: '24px', color: '#7ee787', fontStyle: 'bold',
+    }).setOrigin(0.5);
+    this.add.text(rX, cy + boxH * 0.20, '탭하여 소환', {
       fontFamily: GAME_CONFIG.font.family, fontSize: '16px', color: '#ffd700',
     }).setOrigin(0.5);
 
@@ -109,8 +150,9 @@ export class ShopScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(310);
     layer.push(guide);
 
-    // 마법사 피규어(처음엔 캡슐 뒤에 숨겨둠)
-    const figure = drawHeroFigure(this, cx, cy, R * 0.62, classConfig).setDepth(303).setAlpha(0);
+    // 마법사 피규어(처음엔 캡슐 뒤에 숨겨둠). 전설·신화는 전용 신화 아트로.
+    const figure = (drawMythicFigure(this, cx, cy, R * 0.48, hero.classId)
+      ?? drawHeroFigure(this, cx, cy, R * 0.62, classConfig)).setDepth(303).setAlpha(0);
     layer.push(figure);
 
     // 캡슐(두 반쪽) — 위/아래 반원 조각

@@ -6,10 +6,11 @@ export const RARITIES = {
   rare:      { id: 'rare',      name: '희귀', color: 0x2196F3, textColor: '#8fd0ff' },
   epic:      { id: 'epic',      name: '에픽', color: 0x9C27B0, textColor: '#e0a6ff' },
   legendary: { id: 'legendary', name: '전설', color: 0xFF9800, textColor: '#ffcf7a' },
+  mythic:    { id: 'mythic',    name: '신화', color: 0xE53935, textColor: '#ff8a80' },
 };
 
 // 등급 순서(낮음→높음)
-export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary'];
+export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary', 'mythic'];
 
 export const HEROES = [
   // 일반 — 기본 4원소 마법사 (게임 시작 시 미리 해금)
@@ -31,7 +32,8 @@ export const HEROES = [
   { id: 'contractor', name: '계약자',      rarity: 'legendary', classId: 'CONTRACTOR' },
   { id: 'apostle',    name: '멸망의 사도', rarity: 'legendary', classId: 'APOSTLE' },
   { id: 'executor',   name: '최고집행관',  rarity: 'legendary', classId: 'EXECUTOR' },
-  { id: 'watcher',    name: '주시자',      rarity: 'legendary', classId: 'WATCHER' },
+  // 신화
+  { id: 'watcher',    name: '주시자',      rarity: 'mythic', classId: 'WATCHER' },
 ];
 
 export const HERO_BY_ID = Object.fromEntries(HEROES.map(h => [h.id, h]));
@@ -41,7 +43,9 @@ export const GACHA_BOXES = [
   { id: 'silver',    name: '실버 소환',    accent: 0xB0BEC5, cost: 100,  odds: { common: 0.85, rare: 0.15 } },
   { id: 'gold',      name: '골드 소환',    accent: 0xFFD54F, cost: 300,  odds: { common: 0.40, rare: 0.50, epic: 0.10 } },
   { id: 'premium',   name: '프리미엄 소환', accent: 0x2196F3, cost: 800,  odds: { rare: 0.40, epic: 0.50, legendary: 0.10 } },
-  { id: 'legendary', name: '레전더리 소환', accent: 0xE53935, cost: 2000, odds: { epic: 0.50, legendary: 0.50 } },
+  { id: 'legendary', name: '레전더리 소환', accent: 0xFF9800, cost: 2000, odds: { epic: 0.50, legendary: 0.50 } },
+  // 신화 소환 — 상점 맨 아래 가로 2배 폭. 전설 90% / 신화 10%.
+  { id: 'mythic', name: '신화 소환', accent: 0xE53935, cost: 5000, odds: { legendary: 0.90, mythic: 0.10 }, wide: true },
 ];
 
 export const GACHA_BOX_BY_ID = Object.fromEntries(GACHA_BOXES.map(b => [b.id, b]));

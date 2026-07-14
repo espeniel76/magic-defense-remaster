@@ -348,7 +348,9 @@ export class BoardView {
     const hatColor = hexToInt(mage.config.hatColor ?? mage.config.color);
     const size = this.cellSize * 0.4;
     const level = mage.level;
-    const mythicBuilder = level >= 4 ? MYTHIC_BUILDERS[mage.config.id] : null;
+    // 전설·신화 등급 영웅은 레벨1부터 신화 아트로 표시. 그 외는 L4(신화 티어) 도달 시.
+    const isPremium = mage.config.rarity === 'legendary' || mage.config.rarity === 'mythic';
+    const mythicBuilder = (level >= 4 || isPremium) ? MYTHIC_BUILDERS[mage.config.id] : null;
 
     let container;
     if (mythicBuilder) {
@@ -372,18 +374,18 @@ export class BoardView {
       const hat = this.scene.add.graphics();
       hat.fillStyle(hatColor, 1);
       hat.beginPath();
-      hat.moveTo(0, -size * 1.7);
-      hat.lineTo(-size * 0.6, -size * 0.9);
-      hat.lineTo(size * 0.6, -size * 0.9);
+      hat.moveTo(0, -size * 1.45);
+      hat.lineTo(-size * 0.6, -size * 0.65);
+      hat.lineTo(size * 0.6, -size * 0.65);
       hat.closePath();
       hat.fillPath();
 
       const starCount = Math.min(4, level - 1);
       const starPositions = [
-        { x: 0,            y: -size * 1.15, r: size * 0.10 },
-        { x: 0,            y: -size * 0.85, r: size * 0.08 },
-        { x: -size * 0.25, y: -size * 1.00, r: size * 0.08 },
-        { x:  size * 0.25, y: -size * 1.00, r: size * 0.08 },
+        { x: 0,            y: -size * 0.90, r: size * 0.10 },
+        { x: 0,            y: -size * 0.60, r: size * 0.08 },
+        { x: -size * 0.25, y: -size * 0.75, r: size * 0.08 },
+        { x:  size * 0.25, y: -size * 0.75, r: size * 0.08 },
       ];
       for (let i = 0; i < starCount; i++) {
         const p = starPositions[i];

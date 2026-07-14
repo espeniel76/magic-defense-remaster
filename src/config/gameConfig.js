@@ -29,27 +29,36 @@ export const GAME_CONFIG = {
     mythicDamageStep: 5,           // ×5 when reaching L4 (mythic)
     transcendentDamageStep: 3,     // ×3 when reaching L5 (transcendent)
     levelAttackSpeedMultiplier: 1.1,
+    // 등급별 데미지 배수 — 등급이 오를수록 확실히 강해지되 급발진은 아니게(약 ×1.4/단계).
+    rarityDamageMultiplier: {
+      common:    1.0,
+      rare:      1.4,
+      epic:      2.0,
+      legendary: 2.8,
+      mythic:    3.8,
+    },
   },
   classes: {
-    FIRE:      { id: 'FIRE',      emoji: '🔥',  color: '#FF6B6B', hatColor: '#E74C3C', damage: 10, atkPerSec: 1.0,  effect: 'single' },
-    ICE:       { id: 'ICE',       emoji: '❄️',  color: '#5DADE2', hatColor: '#2E5984', damage: 5,  atkPerSec: 1.5,  effect: 'slow',  slowFactor: 0.3, slowDuration: 2000 },
-    LIGHTNING: { id: 'LIGHTNING', emoji: '⚡',  color: '#FFD93D', hatColor: '#F39C12', damage: 4,  atkPerSec: 1.2,  effect: 'chain', chainCount: 2, chainDamageRatio: 0.5 },
-    EARTH:     { id: 'EARTH',     emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
-    POISON:    { id: 'POISON',    emoji: '☠️',  color: '#7B5DE2', hatColor: '#D597E8', damage: 6,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.5, poisonTickMs: 1000, poisonDurationMs: 3000 },
-    WIND:      { id: 'WIND',      emoji: '🌪️',  color: '#E0E0E0', hatColor: '#A8A8A8', damage: 3,  atkPerSec: 1.6,  effect: 'knockback', knockback: 0.15, mythicKnockback: 0.30 },
-    // ── 희귀(rare): 기본 6원소보다 한 단계 강함 ──
-    SAND:      { id: 'SAND',      emoji: '🏜️',  color: '#E6C86E', hatColor: '#C9A94E', damage: 7,  atkPerSec: 1.4,  effect: 'slow',  slowFactor: 0.4, slowDuration: 2200 },
-    ACID:      { id: 'ACID',      emoji: '🧪',  color: '#A6E22E', hatColor: '#6B8E23', damage: 8,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.6, poisonTickMs: 1000, poisonDurationMs: 3000 },
+    FIRE:      { id: 'FIRE',      rarity: 'common', emoji: '🔥',  color: '#FF6B6B', hatColor: '#E74C3C', damage: 10, atkPerSec: 1.0,  effect: 'single' },
+    ICE:       { id: 'ICE',       rarity: 'common', emoji: '❄️',  color: '#5DADE2', hatColor: '#2E5984', damage: 5,  atkPerSec: 1.5,  effect: 'slow',  slowFactor: 0.3, slowDuration: 2000 },
+    LIGHTNING: { id: 'LIGHTNING', rarity: 'common', emoji: '⚡',  color: '#FFD93D', hatColor: '#F39C12', damage: 4,  atkPerSec: 1.2,  effect: 'chain', chainCount: 2, chainDamageRatio: 0.5 },
+    EARTH:     { id: 'EARTH',     rarity: 'common', emoji: '🌍',  color: '#6DCE53', hatColor: '#2BB342', damage: 3,  atkPerSec: 1.5,  effect: 'aoe',   aoeRadius: 1.5, stunDuration: 500 },
+    // ── 희귀(rare): 기본 4원소보다 한 단계 강함 ──
+    WIND:      { id: 'WIND',      rarity: 'rare', emoji: '🌪️',  color: '#E0E0E0', hatColor: '#A8A8A8', damage: 3,  atkPerSec: 1.6,  effect: 'knockback', knockback: 0.15, mythicKnockback: 0.30 },
+    POISON:    { id: 'POISON',    rarity: 'rare', emoji: '☠️',  color: '#7B5DE2', hatColor: '#D597E8', damage: 6,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.5, poisonTickMs: 1000, poisonDurationMs: 3000 },
+    SAND:      { id: 'SAND',      rarity: 'rare', emoji: '🏜️',  color: '#E6C86E', hatColor: '#C9A94E', damage: 7,  atkPerSec: 1.4,  effect: 'slow',  slowFactor: 0.4, slowDuration: 2200 },
+    ACID:      { id: 'ACID',      rarity: 'rare', emoji: '🧪',  color: '#A6E22E', hatColor: '#6B8E23', damage: 8,  atkPerSec: 1.4,  effect: 'poison', poisonRatio: 0.6, poisonTickMs: 1000, poisonDurationMs: 3000 },
     // ── 에픽(epic) ──
-    MATRIX:    { id: 'MATRIX',    emoji: '🟩',  color: '#00E676', hatColor: '#00A152', damage: 9,  atkPerSec: 1.5,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.6 },
-    THUNDER:   { id: 'THUNDER',   emoji: '🌩️',  color: '#FFE45C', hatColor: '#F2B705', damage: 12, atkPerSec: 1.2,  effect: 'aoe',   aoeRadius: 1.8, stunDuration: 600 },
-    LAVA:      { id: 'LAVA',      emoji: '🌋',  color: '#FF5722', hatColor: '#B71C1C', damage: 14, atkPerSec: 1.1,  effect: 'poison', poisonRatio: 0.7, poisonTickMs: 800, poisonDurationMs: 3000 },
-    SUMMONER:  { id: 'SUMMONER',  emoji: '🔮',  color: '#B388FF', hatColor: '#7C4DFF', damage: 16, atkPerSec: 1.3,  effect: 'single' },
-    // ── 전설(legendary): 최상위 ──
-    CONTRACTOR:{ id: 'CONTRACTOR',emoji: '📜',  color: '#E040FB', hatColor: '#8E24AA', damage: 28, atkPerSec: 1.3,  effect: 'single' },
-    APOSTLE:   { id: 'APOSTLE',   emoji: '💀',  color: '#7C0A02', hatColor: '#3E0703', damage: 22, atkPerSec: 1.1,  effect: 'aoe',   aoeRadius: 2.0, stunDuration: 700 },
-    EXECUTOR:  { id: 'EXECUTOR',  emoji: '⚔️',  color: '#FFC400', hatColor: '#C79100', damage: 24, atkPerSec: 1.4,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.7 },
-    WATCHER:   { id: 'WATCHER',   emoji: '👁️',  color: '#26C6DA', hatColor: '#00838F', damage: 20, atkPerSec: 1.5,  effect: 'poison', poisonRatio: 0.8, poisonTickMs: 700, poisonDurationMs: 3500 },
+    MATRIX:    { id: 'MATRIX',    rarity: 'epic', emoji: '🟩',  color: '#00E676', hatColor: '#00A152', damage: 9,  atkPerSec: 1.5,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.6 },
+    THUNDER:   { id: 'THUNDER',   rarity: 'epic', emoji: '🌩️',  color: '#FFE45C', hatColor: '#F2B705', damage: 12, atkPerSec: 1.2,  effect: 'aoe',   aoeRadius: 1.8, stunDuration: 600 },
+    LAVA:      { id: 'LAVA',      rarity: 'epic', emoji: '🌋',  color: '#FF5722', hatColor: '#B71C1C', damage: 14, atkPerSec: 1.1,  effect: 'poison', poisonRatio: 0.7, poisonTickMs: 800, poisonDurationMs: 3000 },
+    SUMMONER:  { id: 'SUMMONER',  rarity: 'epic', emoji: '🔮',  color: '#B388FF', hatColor: '#7C4DFF', damage: 16, atkPerSec: 1.3,  effect: 'single' },
+    // ── 전설(legendary) ──
+    CONTRACTOR:{ id: 'CONTRACTOR',rarity: 'legendary', emoji: '📜',  color: '#E040FB', hatColor: '#8E24AA', damage: 28, atkPerSec: 1.3,  effect: 'single' },
+    APOSTLE:   { id: 'APOSTLE',   rarity: 'legendary', emoji: '💀',  color: '#7C0A02', hatColor: '#3E0703', damage: 22, atkPerSec: 1.1,  effect: 'aoe',   aoeRadius: 2.0, stunDuration: 700 },
+    EXECUTOR:  { id: 'EXECUTOR',  rarity: 'legendary', emoji: '⚔️',  color: '#FFC400', hatColor: '#C79100', damage: 24, atkPerSec: 1.4,  effect: 'chain', chainCount: 3, chainDamageRatio: 0.7 },
+    // ── 신화(mythic): 최상위 ──
+    WATCHER:   { id: 'WATCHER',   rarity: 'mythic', emoji: '👁️',  color: '#26C6DA', hatColor: '#00838F', damage: 20, atkPerSec: 1.5,  effect: 'poison', poisonRatio: 0.8, poisonTickMs: 700, poisonDurationMs: 3500 },
   },
   enemies: {
     GOBLIN:   { id: 'GOBLIN',   displayName: '일반',   emoji: '👹', color: '#E74C3C', hp: 10,  speed: 0.33, baseDamage: 1 },
@@ -98,6 +107,15 @@ export const GAME_CONFIG = {
     { name: '실험실', color: 0xFA8072, hpMultiplier: 2.6, tier: 'hell',
       stripes: [0x9E9E9E, 0xFA8072, 0xFA8072, 0x9E9E9E] },
   ],
+  // 난이도 — 스테이지마다 선택. 지금까지의 밸런스가 '어려움'(기준 ×1.0)이다.
+  // 단계별로 조금씩만 세짐(적 HP 배수). 클리어 보상 젬은 어려울수록 조금 더.
+  difficulties: [
+    { id: 'normal', name: '일반',   hpMultiplier: 0.7, goldMultiplier: 1.0, color: 0x4CAF50 },
+    { id: 'hard',   name: '어려움', hpMultiplier: 1.0, goldMultiplier: 1.0, color: 0x2196F3 },
+    { id: 'hell',   name: '지옥',   hpMultiplier: 1.4, goldMultiplier: 1.2, color: 0xE64A19 },
+    { id: 'master', name: '마스터', hpMultiplier: 1.9, goldMultiplier: 1.4, color: 0x9C27B0 },
+  ],
+  defaultDifficultyId: 'hard',
   hardMode: {
     enemyHpMultiplier: 1.5,
     eliteSpawnRatio: 0.2,
